@@ -8,9 +8,9 @@ node_modules/
 # =============================
 # Imagens e assets pesados (repositório de mídia local)
 # =============================
-Imagens /
-Imagens/
-imagens/
+/Imagens /
+/Imagens/
+/imagens/
 
 # =============================
 # Build / Output do Next.js
