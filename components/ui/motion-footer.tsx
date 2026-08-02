@@ -214,12 +214,12 @@ export function CinematicFooter() {
           y: "0vh",
           scale: 1,
           opacity: 1,
-          ease: "power1.out",
+          duration: 1.2,
+          ease: "power2.out",
           scrollTrigger: {
             trigger: wrapperRef.current,
-            start: "top 80%",
-            end: "bottom bottom",
-            scrub: 1,
+            start: "top 95%",
+            toggleActions: "play none none reverse",
           },
         }
       );
@@ -230,13 +230,13 @@ export function CinematicFooter() {
         {
           y: 0,
           opacity: 1,
+          duration: 0.8,
           stagger: 0.15,
           ease: "power3.out",
           scrollTrigger: {
             trigger: wrapperRef.current,
-            start: "top 45%",
-            end: "bottom bottom",
-            scrub: 1,
+            start: "top 85%",
+            toggleActions: "play none none reverse",
           },
         }
       );
@@ -253,12 +253,8 @@ export function CinematicFooter() {
     <section id="contato" data-nav="Contato" aria-label="Contato">
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
 
-      <div
-        ref={wrapperRef}
-        className="relative h-screen w-full"
-        style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
-      >
-        <footer className="cinematic-footer-wrapper fixed bottom-0 left-0 flex h-screen w-full flex-col justify-between overflow-hidden bg-kenesis-greenDark text-white">
+      <div ref={wrapperRef}>
+        <footer className="cinematic-footer-wrapper relative flex min-h-screen w-full flex-col justify-between overflow-hidden bg-kenesis-greenDark text-white">
           <div className="footer-aurora pointer-events-none absolute left-1/2 top-1/2 z-0 h-[60vh] w-[80vw] -translate-x-1/2 -translate-y-1/2 animate-footer-breathe rounded-[50%] blur-[80px]" />
           <div className="footer-bg-grid pointer-events-none absolute inset-0 z-0" />
 

@@ -49,3 +49,12 @@ body {
 .motion-footer-links a:hover {
   color: #a1ba1f;
 }
+
+/* Esconde scrollbar horizontal preservando funcionalidade */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

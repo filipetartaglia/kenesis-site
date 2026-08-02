@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
+import { motion } from "framer-motion";
 import { HOME_SECTIONS } from "@/lib/data";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { cn } from "@/lib/utils";
+
+const TAB_IDS = ["Imóveis", ...HOME_SECTIONS];
 
 export function Header() {
   const pathname = usePathname();
@@ -13,6 +17,11 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState("Sobre");
+
+  // Slide-tab hover state
+  const [hovered, setHovered] = useState<string | null>(null);
+  const tabRefs = useRef<Record<string, HTMLElement | null>>({});
+  const [indicator, setIndicator] = useState({ left: 0, width: 0, opacity: 0 });
 
   useEffect(() => {
     function onScroll() {
@@ -26,7 +35,10 @@ export function Header() {
   useEffect(() => {
     if (!isHome) return;
     const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActive((e.target as HTMLElement).dataset.nav || "")),
+      (entries) =>
+        entries.forEach(
+          (e) => e.isIntersecting && setActive((e.target as HTMLElement).dataset.nav || "")
+        ),
       { threshold: 0.4 }
     );
     HOME_SECTIONS.forEach((n) => {
@@ -36,8 +48,38 @@ export function Header() {
     return () => obs.disconnect();
   }, [isHome]);
 
-  const navItems = isHome ? ["Imóveis", ...HOME_SECTIONS] : ["Início", "Imóveis", "Contato"];
+  // Update sliding indicator position
+  useEffect(() => {
+    const key = hovered ?? (isHome ? active : null);
+    if (!key) {
+      setIndicator((p) => ({ ...p, opacity: 0 }));
+      return;
+    }
+    const el = tabRefs.current[key];
+    if (!el) return;
+    const parent = el.closest("nav");
+    if (!parent) return;
+    const parentRect = parent.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
+    setIndicator({
+      left: rect.left - parentRect.left,
+      width: rect.width,
+      opacity: 1,
+    });
+  }, [hovered, active, isHome]);
+
+  const navItems = isHome
+    ? ["Imóveis", ...HOME_SECTIONS]
+    : ["Início", "Imóveis", "Contato"];
+
   const solid = scrolled || !isHome;
+
+  const getHref = (item: string) => {
+    if (item === "Imóveis") return "/imoveis";
+    if (item === "Início") return "/";
+    if (!isHome && item === "Contato") return "/#contato";
+    return `#${item.toLowerCase()}`;
+  };
 
   return (
     <header
@@ -48,34 +90,52 @@ export function Header() {
       }}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
-        <Link href="/" className="font-display text-xl tracking-[0.15em] text-white">
-          KENESIS
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Kenesis" className="h-9 w-9" />
+          <span className="font-display text-xl tracking-[0.15em] text-white">KENESIS</span>
         </Link>
 
-        <nav className="hidden items-center gap-7 lg:flex">
-          {navItems.map((item) =>
-            item === "Imóveis" || item === "Início" ? (
+        {/* Desktop nav — slide tabs */}
+        <nav
+          className="relative hidden items-center lg:flex"
+          onMouseLeave={() => setHovered(null)}
+        >
+          {/* Sliding highlight */}
+          <motion.div
+            className="pointer-events-none absolute top-1/2 -translate-y-1/2 rounded-full bg-white/10"
+            animate={{
+              left: indicator.left,
+              width: indicator.width,
+              opacity: indicator.opacity,
+            }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            style={{ height: "calc(100% - 4px)" }}
+          />
+
+          <div className="flex items-center gap-1 px-1">
+            {navItems.map((item) => (
               <Link
                 key={item}
-                href={item === "Imóveis" ? "/imoveis" : "/"}
-                className="relative text-[13px] font-medium tracking-wide text-white opacity-80 hover:opacity-100"
-              >
-                {item}
-              </Link>
-            ) : (
-              <a
-                key={item}
-                href={`/${item === "Contato" && !isHome ? "#contato" : `#${item.toLowerCase()}`}`}
-                className="relative text-[13px] font-medium tracking-wide text-white transition-opacity"
-                style={{ opacity: active === item ? 1 : 0.8 }}
-              >
-                {item}
-                {isHome && active === item && (
-                  <span className="absolute -bottom-1.5 left-0 h-[2px] w-full bg-kenesis-lime" />
+                href={getHref(item)}
+                ref={(el) => {
+                  tabRefs.current[item] = el;
+                }}
+                onMouseEnter={() => setHovered(item)}
+                className={cn(
+                  "relative z-10 rounded-full px-4 py-2 text-[13px] font-medium tracking-wide text-white transition-opacity",
+                  isHome && active === item ? "opacity-100" : "opacity-70 hover:opacity-100"
                 )}
-              </a>
-            )
-          )}
+              >
+                {item}
+                {/* Active underline */}
+                {isHome && active === item && (
+                  <span className="absolute -bottom-1 left-1/2 h-[2px] w-3 -translate-x-1/2 rounded-full bg-kenesis-lime" />
+                )}
+              </Link>
+            ))}
+          </div>
         </nav>
 
         <div className="hidden lg:block">
@@ -88,6 +148,7 @@ export function Header() {
           />
         </div>
 
+        {/* Mobile hamburger */}
         <button className="text-white lg:hidden" onClick={() => setMenuOpen((o) => !o)}>
           {menuOpen ? (
             <X size={22} />
@@ -100,12 +161,13 @@ export function Header() {
         </button>
       </div>
 
+      {/* Mobile menu */}
       {menuOpen && (
         <div className="flex flex-col gap-5 bg-kenesis-green px-6 pb-8 lg:hidden">
           {navItems.map((item) => (
             <a
               key={item}
-              href={item === "Imóveis" ? "/imoveis" : item === "Início" ? "/" : `/#${item.toLowerCase()}`}
+              href={getHref(item)}
               className="text-sm text-white"
               onClick={() => setMenuOpen(false)}
             >

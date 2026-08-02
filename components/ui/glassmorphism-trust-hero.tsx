@@ -62,7 +62,7 @@ export default function HeroSection() {
       <div
         className="absolute inset-0 z-0 bg-cover bg-center"
         style={{
-          backgroundImage: "url('/imoveis/mansao-jardim-uba/01.webp')",
+          backgroundImage: "url('/imagens/site/Imagem-principal-site.jpeg')",
           opacity: 0.45,
           maskImage: "linear-gradient(180deg, transparent, black 8%, black 72%, transparent)",
           WebkitMaskImage: "linear-gradient(180deg, transparent, black 8%, black 72%, transparent)",
