@@ -97,8 +97,6 @@ export default function HeroSection() {
             <div className="kenesis-hero-fade kenesis-d-400 flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/imoveis"
-Terrenos
-Lançame
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-kenesis-lime px-8 py-4 text-sm font-semibold text-kenesis-greenDark transition-all hover:scale-[1.02] hover:bg-[#b4ce2a] active:scale-[0.98]"
               >
                 Ver imóveis
