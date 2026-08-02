@@ -92,17 +92,17 @@ export function Destaques() {
         {/* Scroll horizontal */}
         <div
           ref={scrollRef}
-          className="flex gap-5 overflow-x-auto scroll-smooth px-6 pb-2 lg:px-10"
+          className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-6 pb-2 lg:px-10"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {FEATURED.map((p, i) => (
-            <div key={p.id} className="w-[300px] flex-none sm:w-[320px]">
+            <div key={p.id} className="w-[300px] flex-none snap-center sm:w-[320px]">
               <PropertyCard p={p} delay={i * 80} />
             </div>
           ))}
 
           {/* Card "Ver todos" — aparece naturalmente no final */}
-          <div className="w-[260px] flex-none self-stretch sm:w-[280px]">
+          <div className="w-[260px] flex-none self-stretch snap-center sm:w-[280px]">
             <Link
               href="/imoveis"
               className={cn(

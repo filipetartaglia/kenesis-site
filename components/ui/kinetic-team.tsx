@@ -28,6 +28,13 @@ export function KineticTeam({ members }: { members: TeamMember[] }) {
             key={member.name}
             onMouseEnter={() => setActive(i)}
             onMouseLeave={() => setActive(null)}
+            onViewportEnter={() => {
+              if (typeof window !== "undefined" && window.innerWidth < 1024) setActive(i);
+            }}
+            onViewportLeave={() => {
+              if (typeof window !== "undefined" && window.innerWidth < 1024 && active === i) setActive(null);
+            }}
+            viewport={{ amount: 0.6, margin: "0px 0px 0px 0px" }}
             initial={false}
             animate={{ flex: isActive ? 3 : 1 }}
             transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
@@ -61,7 +68,7 @@ export function KineticTeam({ members }: { members: TeamMember[] }) {
             {/* Large Photo Overlay */}
             {member.photo && (
               <motion.div
-                className="absolute bottom-0 right-0 z-0 h-[75%] w-[85%] lg:h-[85%] lg:w-[85%]"
+                className="absolute bottom-0 right-0 z-0 h-[55%] w-[70%] lg:h-[85%] lg:w-[85%]"
                 animate={{
                   opacity: isActive ? 1 : 0.2,
                   scale: isActive ? 1.05 : 1,
@@ -93,7 +100,7 @@ export function KineticTeam({ members }: { members: TeamMember[] }) {
 
             {/* Text protection gradient */}
             <motion.div
-              className="pointer-events-none absolute bottom-0 left-0 right-0 z-[5] h-[65%]"
+              className="pointer-events-none absolute bottom-0 left-0 right-0 z-[5] h-[85%] lg:h-[65%]"
               animate={{
                 background: isActive
                   ? "linear-gradient(to top, rgba(2, 26, 23, 0.95) 0%, rgba(2, 26, 23, 0.7) 45%, transparent 100%)"
