@@ -217,7 +217,7 @@ export function CinematicFooter() {
           duration: 1.2,
           ease: "power2.out",
           scrollTrigger: {
-            trigger: wrapperRef.current,
+            trigger: giantTextRef.current,
             start: "top 95%",
             toggleActions: "play none none reverse",
           },
@@ -234,8 +234,8 @@ export function CinematicFooter() {
           stagger: 0.15,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: wrapperRef.current,
-            start: "top 85%",
+            trigger: headingRef.current,
+            start: "top 90%",
             toggleActions: "play none none reverse",
           },
         }
