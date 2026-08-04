@@ -13,7 +13,21 @@ import { findPublicTeam } from "@/server/users/repository";
 //
 // A página é quem fala com a camada de dados e entrega pronto aos componentes.
 // É o único lugar do app onde server/ pode ser importado.
-export default function HomePage() {
+
+/**
+ * A equipe agora vem do Postgres, então a home não pode mais ser congelada no
+ * build: um membro editado no painel precisa aparecer sem novo deploy.
+ *
+ * ISR em vez de force-dynamic — a home continua servida como estática e
+ * revalida em segundo plano a cada 5 min. Quando a publicação pelo painel
+ * existir, isto vira revalidateTag() e a atualização passa a ser imediata
+ * (spec §5, item 9).
+ */
+export const revalidate = 300;
+
+export default async function HomePage() {
+  const members = await findPublicTeam();
+
   return (
     <>
       <Hero />
@@ -21,7 +35,7 @@ export default function HomePage() {
       <Categorias />
       <Destaques properties={findFeatured(6)} total={countPublished()} />
       <Servicos />
-      <Equipe members={findPublicTeam()} />
+      <Equipe members={members} />
       <Depoimentos />
       <Faq />
     </>

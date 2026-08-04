@@ -3,9 +3,15 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DataTable } from "@/components/admin/data-table";
 import { SearchInput } from "@/components/admin/search-input";
 import { StatusBadge } from "@/components/admin/status-badge";
-import { mockUsers } from "@/lib/mock/users";
+import { findAllForAdmin } from "@/server/users/repository";
 
-export default function UsuariosPage() {
+// Painel nunca serve página em cache: um usuário desativado precisa sumir da
+// lista no mesmo instante, não na próxima revalidação.
+export const dynamic = "force-dynamic";
+
+export default async function UsuariosPage() {
+  const usuarios = await findAllForAdmin();
+
   const columns = [
     { key: "name", label: "Nome" },
     { key: "email", label: "E-mail" },
@@ -49,7 +55,7 @@ export default function UsuariosPage() {
         <SearchInput className="max-w-md flex-1" placeholder="Buscar por nome ou e-mail..." />
       </div>
 
-      <DataTable columns={columns} data={mockUsers} />
+      <DataTable columns={columns} data={usuarios} />
     </div>
   );
 }

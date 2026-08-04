@@ -1,8 +1,12 @@
 import type { TeamMember } from "@/types";
 
-// Fonte em memória da equipe, temporária: vira linhas na tabela `users` com
-// is_public = true. Cada um precisa de e-mail e senha próprios; quem não operar
-// o painel entra com password_hash nulo — aparece na home, não faz login.
+// ENTRADA DO SEED, não fonte de runtime.
+//
+// Desde que server/users/repository.ts passou a ler o Postgres, este arquivo é
+// consumido apenas por db/seed.ts. Editar aqui não muda o site: mude e rode
+// `npm run db:seed`, ou edite direto pelo painel.
+//
+// Sai do repositório quando o cadastro dos três estiver conferido no banco.
 //
 // Atenção ao campo `role` daqui: é CARGO ("CEO & Estratégia"). No banco,
 // `role` é PERMISSÃO (admin | corretor) e o cargo se chama `job_title`. Se os
