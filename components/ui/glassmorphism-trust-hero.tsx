@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import { siteConfig } from "@/lib/config";
 
 const HIGHLIGHTS = [
   { name: "Casas", icon: Home },
@@ -104,7 +105,7 @@ export default function HeroSection() {
               </Link>
 
               <a
-                href="https://wa.me/5521976248282"
+                href={siteConfig.links.whatsapp}
                 target="_blank"
                 rel="noreferrer"
                 className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-white/10"

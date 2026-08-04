@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
+import type { FAQ } from "@/types";
 
-export type FaqItem = { q: string; a: string };
+export type FaqItem = FAQ;
 
 export function FaqMonochrome({ items }: { items: FaqItem[] }) {
   const [open, setOpen] = useState<number | null>(null);

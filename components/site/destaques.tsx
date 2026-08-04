@@ -5,10 +5,11 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { PropertyCard } from "@/components/site/property-card";
 import { Reveal } from "@/components/site/reveal";
-import { properties } from "@/lib/data";
+import { getFeaturedProperties, getAllProperties } from "@/lib/repositories/property.repository";
 import { cn } from "@/lib/utils";
 
-const FEATURED = properties.slice(0, 6);
+const FEATURED = getFeaturedProperties(6);
+const totalCount = getAllProperties().length;
 
 export function Destaques() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -127,7 +128,7 @@ export function Destaques() {
                   Ver todos os imóveis
                 </p>
                 <p className="mt-1 text-sm text-white/40">
-                  {properties.length} propriedades
+                  {totalCount} propriedades
                 </p>
               </div>
             </Link>

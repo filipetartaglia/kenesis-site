@@ -1,8 +1,9 @@
-import { Home, Users, Wallet } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
-import { servicos } from "@/lib/data";
+import { getAllServicos } from "@/lib/repositories/section.repository";
+import { Home, Users, Wallet } from "lucide-react";
 
 const icons = [Home, Users, Wallet];
+const servicos = getAllServicos();
 
 export function Servicos() {
   return (

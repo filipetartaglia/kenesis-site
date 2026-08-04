@@ -1,8 +1,9 @@
-import { Home, Landmark, Building2 } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
-import { categorias } from "@/lib/data";
+import { getAllCategorias } from "@/lib/repositories/section.repository";
+import { Home, Landmark, Building2 } from "lucide-react";
 
 const icons = [Home, Landmark, Building2];
+const categorias = getAllCategorias();
 
 export function Categorias() {
   return (

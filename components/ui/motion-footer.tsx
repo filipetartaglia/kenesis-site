@@ -7,6 +7,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { siteConfig } from "@/lib/config";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -274,7 +275,7 @@ export function CinematicFooter() {
 
           <div className="relative z-10 mx-auto mt-20 flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-6">
             <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-kenesis-lime">
-              Kenesis Imobiliária · Niterói e região
+              {siteConfig.nameFull} · {siteConfig.addressShort}
             </p>
             <h2
               ref={headingRef}
@@ -289,12 +290,12 @@ export function CinematicFooter() {
               <div className="flex w-full flex-wrap justify-center gap-4">
                 <MagneticButton
                   as="a"
-                  href="https://wa.me/5521976248282"
+                  href={siteConfig.links.whatsapp}
                   target="_blank"
                   rel="noreferrer"
                   className="footer-glass-pill group flex items-center gap-3 rounded-full px-10 py-5 text-sm font-bold text-white md:text-base"
                 >
-                  Falar com a Kenesis
+                  Falar com a {siteConfig.name}
                   <ArrowUpRight className="h-5 w-5 text-kenesis-lime transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </MagneticButton>
 
@@ -324,7 +325,7 @@ export function CinematicFooter() {
                 </MagneticButton>
                 <MagneticButton
                   as="a"
-                  href="https://www.instagram.com/kenesis.imoveis/"
+                  href={siteConfig.social.instagram.url}
                   target="_blank"
                   rel="noreferrer"
                   className="footer-glass-pill rounded-full px-6 py-3 text-xs font-medium text-white/65 hover:text-white md:text-sm"
@@ -334,22 +335,22 @@ export function CinematicFooter() {
               </div>
 
               <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/55 sm:text-sm">
-                <a href="tel:+5521976248282" className="inline-flex items-center gap-2 hover:text-kenesis-lime">
-                  <Phone size={14} /> (21) 97624-8282
+                <a href={siteConfig.links.phone} className="inline-flex items-center gap-2 hover:text-kenesis-lime">
+                  <Phone size={14} /> {siteConfig.phoneFormatted}
                 </a>
-                <a href="mailto:kenesisimoveis@gmail.com" className="inline-flex items-center gap-2 hover:text-kenesis-lime">
-                  <Mail size={14} /> kenesisimoveis@gmail.com
+                <a href={siteConfig.links.email} className="inline-flex items-center gap-2 hover:text-kenesis-lime">
+                  <Mail size={14} /> {siteConfig.email}
                 </a>
                 <span className="inline-flex items-center gap-2">
-                  <MapPin size={14} /> Niterói, Rio de Janeiro
+                  <MapPin size={14} /> {siteConfig.address}
                 </span>
                 <a
-                  href="https://www.instagram.com/kenesis.imoveis/"
+                  href={siteConfig.social.instagram.url}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 hover:text-kenesis-lime"
                 >
-                  <Instagram size={14} /> @kenesis.imoveis
+                  <Instagram size={14} /> {siteConfig.social.instagram.handle}
                 </a>
               </div>
             </div>
@@ -357,7 +358,7 @@ export function CinematicFooter() {
 
           <div className="relative z-20 flex w-full flex-col items-center justify-between gap-6 px-6 pb-8 md:flex-row md:px-12">
             <div className="order-2 text-[10px] font-semibold uppercase tracking-widest text-white/45 md:order-1 md:text-xs">
-              © {new Date().getFullYear()} Kenesis Imobiliária. Todos os direitos reservados.
+              © {new Date().getFullYear()} {siteConfig.nameFull}. Todos os direitos reservados.
             </div>
 
             <div className="footer-glass-pill order-1 flex cursor-default items-center gap-2 rounded-full border-white/10 px-6 py-3 md:order-2">

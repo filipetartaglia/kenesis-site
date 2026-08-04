@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, MapPin, Bed, Bath, Car, Maximize2 } from "lucide-react";
-import { Property, properties } from "@/lib/data";
+import type { Property } from "@/types";
+import { getSimilarProperties } from "@/lib/repositories/property.repository";
 import { ExpandMap } from "@/components/site/expand-map";
 import { PropertyCard } from "@/components/site/property-card";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
@@ -11,7 +12,7 @@ import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button
 export function PropertyDetail({ property }: { property: Property }) {
   const [active, setActive] = useState(0);
   const [sent, setSent] = useState(false);
-  const others = properties.filter((p) => p.id !== property.id).slice(0, 3);
+  const others = getSimilarProperties(property.id, 3);
 
   return (
     <div className="mx-auto max-w-6xl px-6 pb-28 pt-32 lg:px-10">

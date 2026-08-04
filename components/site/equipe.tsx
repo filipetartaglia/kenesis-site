@@ -1,6 +1,8 @@
 import { Reveal } from "@/components/site/reveal";
 import { KineticTeam } from "@/components/ui/kinetic-team";
-import { equipe } from "@/lib/data";
+import { getAllTeamMembers } from "@/lib/repositories/team.repository";
+
+const members = getAllTeamMembers();
 
 export function Equipe() {
   return (
@@ -15,7 +17,7 @@ export function Equipe() {
             Passe o mouse sobre cada membro para conhecê-los melhor.
           </p>
         </Reveal>
-        <KineticTeam members={equipe} />
+        <KineticTeam members={members} />
       </div>
     </section>
   );
