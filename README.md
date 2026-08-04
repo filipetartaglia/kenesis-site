@@ -48,9 +48,3 @@ foram colocados lá, exatamente como o CLI faria.
 - **Cores/fontes** → `tailwind.config.ts` (paleta `kenesis.*`) e variáveis CSS em `app/globals.css`.
 - **WhatsApp/e-mail** → `components/site/header.tsx` e `components/site/contato.tsx`.
 - **Fotos de imóveis e da equipe** são placeholders do site atual — troque os links em `lib/data.ts` quando tiver os arquivos finais.
-
-## Próximos passos sugeridos
-
-- Trocar fotos placeholder por fotos reais (equipe e imóveis).
-- Conectar o formulário de interesse a um backend/CRM (hoje ele só simula envio).
-- Deploy na Vercel: `vercel --prod` (mesmo fluxo que os outros projetos).
