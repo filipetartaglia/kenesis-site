@@ -1,6 +1,7 @@
 import { Phone, Mail, MapPin, Instagram } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { siteConfig } from "@/lib/config";
 
 export function Contato() {
   return (
@@ -13,33 +14,33 @@ export function Contato() {
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <InteractiveHoverButton
             text="Falar no WhatsApp"
-            href="https://wa.me/5521976248282"
+            href={siteConfig.links.whatsapp}
             target="_blank"
             rel="noreferrer"
             className="border-white/30 bg-white/10 text-white"
           />
           <InteractiveHoverButton
             text="Enviar e-mail"
-            href="mailto:kenesisimoveis@gmail.com"
+            href={siteConfig.links.email}
             className="border-white/30 bg-white/10 text-white"
           />
         </div>
       </Reveal>
 
       <div className="mx-auto mt-24 flex max-w-4xl flex-col items-center justify-between gap-6 border-t border-white/10 pt-8 text-[13px] text-white/60 sm:flex-row">
-        <span className="font-display text-base tracking-widest text-white">KENESIS</span>
+        <span className="font-display text-base tracking-widest text-white">{siteConfig.name.toUpperCase()}</span>
         <div className="flex flex-wrap items-center justify-center gap-5">
-          <a href="tel:+5521976248282" className="flex items-center gap-1.5">
-            <Phone size={14} /> (21) 97624-8282
+          <a href={siteConfig.links.phone} className="flex items-center gap-1.5">
+            <Phone size={14} /> {siteConfig.phoneFormatted}
           </a>
-          <a href="mailto:kenesisimoveis@gmail.com" className="flex items-center gap-1.5">
-            <Mail size={14} /> kenesisimoveis@gmail.com
+          <a href={siteConfig.links.email} className="flex items-center gap-1.5">
+            <Mail size={14} /> {siteConfig.email}
           </a>
           <span className="flex items-center gap-1.5">
-            <MapPin size={14} /> Niterói, RJ
+            <MapPin size={14} /> {siteConfig.addressShort}
           </span>
-          <a href="https://www.instagram.com/kenesis.imoveis/" target="_blank" rel="noreferrer" className="flex items-center gap-1.5">
-            <Instagram size={16} /> @kenesis.imoveis
+          <a href={siteConfig.social.instagram.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5">
+            <Instagram size={16} /> {siteConfig.social.instagram.handle}
           </a>
         </div>
       </div>

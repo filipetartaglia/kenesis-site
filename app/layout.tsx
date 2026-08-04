@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/lib/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Kenesis Imobiliária | Alto padrão em Niterói",
-  description:
-    "Imóveis de médio e alto padrão em Niterói, Rio de Janeiro e região. Casas, apartamentos, terrenos e empreendimentos.",
+  title: `${siteConfig.nameFull} | Alto padrão em Niterói`,
+  description: siteConfig.description,
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },

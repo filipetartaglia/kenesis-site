@@ -5,12 +5,14 @@ import { Header } from "@/components/site/header";
 import { PropertyCard } from "@/components/site/property-card";
 import { PropertyFilters } from "@/components/site/property-filters";
 import { Footer } from "@/components/site/footer";
-import { properties } from "@/lib/data";
+import { getAllProperties, getPropertyTags } from "@/lib/repositories/property.repository";
+
+const allProperties = getAllProperties();
+const tipos = getPropertyTags();
 
 export default function ImoveisPage() {
-  const tipos = ["Todos", ...Array.from(new Set(properties.map((p) => p.tag)))];
   const [filter, setFilter] = useState("Todos");
-  const filtered = filter === "Todos" ? properties : properties.filter((p) => p.tag === filter);
+  const filtered = filter === "Todos" ? allProperties : allProperties.filter((p) => p.tag === filter);
 
   return (
     <>

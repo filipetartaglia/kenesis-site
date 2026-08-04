@@ -5,11 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { motion } from "framer-motion";
-import { HOME_SECTIONS } from "@/lib/data";
+import { siteConfig } from "@/lib/config";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { cn } from "@/lib/utils";
 
-const TAB_IDS = ["Imóveis", ...HOME_SECTIONS];
+const TAB_IDS = ["Imóveis", ...siteConfig.homeSections];
 
 export function Header() {
   const pathname = usePathname();
@@ -41,7 +41,7 @@ export function Header() {
         ),
       { threshold: 0.4 }
     );
-    HOME_SECTIONS.forEach((n) => {
+    siteConfig.homeSections.forEach((n) => {
       const el = document.getElementById(n.toLowerCase());
       if (el) obs.observe(el);
     });
@@ -69,7 +69,7 @@ export function Header() {
   }, [hovered, active, isHome]);
 
   const navItems = isHome
-    ? ["Imóveis", ...HOME_SECTIONS]
+    ? ["Imóveis", ...siteConfig.homeSections]
     : ["Início", "Imóveis", "Contato"];
 
   const solid = scrolled || !isHome;
@@ -93,8 +93,8 @@ export function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="Kenesis" className="h-9 w-9" />
-          <span className="font-display text-xl tracking-[0.15em] text-white">KENESIS</span>
+          <img src="/logo.svg" alt={siteConfig.name} className="h-9 w-9" />
+          <span className="font-display text-xl tracking-[0.15em] text-white">{siteConfig.name.toUpperCase()}</span>
         </Link>
 
         {/* Desktop nav — slide tabs */}
@@ -141,7 +141,7 @@ export function Header() {
         <div className="hidden lg:block">
           <InteractiveHoverButton
             text="Falar com especialista"
-            href="https://wa.me/5521976248282"
+            href={siteConfig.links.whatsapp}
             target="_blank"
             rel="noreferrer"
             className="border-white/30 bg-white/10 text-white"
@@ -176,7 +176,7 @@ export function Header() {
           ))}
           <InteractiveHoverButton
             text="Falar com especialista"
-            href="https://wa.me/5521976248282"
+            href={siteConfig.links.whatsapp}
             target="_blank"
             rel="noreferrer"
             className="w-fit border-white/30 bg-white/10 text-white"

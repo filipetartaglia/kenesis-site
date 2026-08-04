@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Property } from "@/lib/data";
+import type { Property } from "@/types";
 import { Reveal } from "@/components/site/reveal";
 
 export function PropertyCard({ p, delay = 0 }: { p: Property; delay?: number }) {

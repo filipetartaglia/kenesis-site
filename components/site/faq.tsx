@@ -2,7 +2,9 @@
 
 import { Reveal } from "@/components/site/reveal";
 import { FaqMonochrome } from "@/components/ui/faq-monochrome";
-import { faqs } from "@/lib/data";
+import { getAllFaqs } from "@/lib/repositories/faq.repository";
+
+const faqItems = getAllFaqs();
 
 export function Faq() {
   return (
@@ -17,7 +19,7 @@ export function Faq() {
           </h2>
         </Reveal>
         <div className="mt-12">
-          <FaqMonochrome items={faqs} />
+          <FaqMonochrome items={faqItems} />
         </div>
       </div>
     </section>

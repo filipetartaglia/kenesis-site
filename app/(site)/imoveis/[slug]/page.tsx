@@ -2,14 +2,15 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/site/header";
 import { PropertyDetail } from "@/components/site/property-detail";
 import { Footer } from "@/components/site/footer";
-import { properties } from "@/lib/data";
+import { getPropertyBySlug, getAllSlugs } from "@/lib/repositories/property.repository";
 
 export function generateStaticParams() {
-  return properties.map((p) => ({ slug: p.slug }));
+  return getAllSlugs().map((slug) => ({ slug }));
 }
 
-export default function ImovelPage({ params }: { params: { slug: string } }) {
-  const property = properties.find((p) => p.slug === params.slug);
+export default async function ImovelPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const property = getPropertyBySlug(slug);
   if (!property) return notFound();
 
   return (
