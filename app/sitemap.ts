@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllSlugs } from "@/lib/repositories/property.repository";
+import { listSlugs } from "@/server/properties/repository";
 
 /**
  * Gera o sitemap.xml automaticamente com base nas rotas existentes e nos imóveis cadastrados.
@@ -22,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const propertyRoutes: MetadataRoute.Sitemap = getAllSlugs().map((slug) => ({
+  const propertyRoutes: MetadataRoute.Sitemap = listSlugs().map((slug) => ({
     url: `${baseUrl}/imoveis/${slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,

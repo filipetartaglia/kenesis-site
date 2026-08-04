@@ -1,5 +1,13 @@
 import type { TeamMember } from "@/types";
 
+// Fonte em memória da equipe, temporária: vira linhas na tabela `users` com
+// is_public = true. Cada um precisa de e-mail e senha próprios; quem não operar
+// o painel entra com password_hash nulo — aparece na home, não faz login.
+//
+// Atenção ao campo `role` daqui: é CARGO ("CEO & Estratégia"). No banco,
+// `role` é PERMISSÃO (admin | corretor) e o cargo se chama `job_title`. Se os
+// dois se chamarem role na migração, alguém renderiza "admin" no card da home.
+
 export const equipe: TeamMember[] = [
   {
     name: "Filipe Moura",

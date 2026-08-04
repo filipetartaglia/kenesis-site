@@ -1,5 +1,13 @@
 import type { Property } from "@/types";
 
+// Fonte em memória do acervo, temporária. Mora em server/ e não em lib/content/
+// porque isto é DADO GERENCIADO — vai virar a tabela `properties` no Postgres.
+// lib/content/ guarda o oposto: conteúdo que fica em código para sempre (FAQ,
+// categorias, serviços — 16 registros que mudam ~2x por ano, spec D3).
+//
+// Só server/properties/repository.ts sabe que este arquivo existe. Quando o
+// banco entrar, ele some e nada mais precisa ser tocado.
+
 const gallery = (slug: string, count: number) =>
   Array.from(
     { length: count },

@@ -2,9 +2,8 @@
 
 import { Reveal } from "@/components/site/reveal";
 import { FaqMonochrome } from "@/components/ui/faq-monochrome";
-import { getAllFaqs } from "@/lib/repositories/faq.repository";
-
-const faqItems = getAllFaqs();
+// Conteúdo estático, sem repositório — mesmo motivo de categorias.tsx.
+import { faqs } from "@/lib/content/faq";
 
 export function Faq() {
   return (
@@ -19,7 +18,7 @@ export function Faq() {
           </h2>
         </Reveal>
         <div className="mt-12">
-          <FaqMonochrome items={faqItems} />
+          <FaqMonochrome items={faqs} />
         </div>
       </div>
     </section>

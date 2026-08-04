@@ -5,14 +5,21 @@ import { Header } from "@/components/site/header";
 import { PropertyCard } from "@/components/site/property-card";
 import { PropertyFilters } from "@/components/site/property-filters";
 import { Footer } from "@/components/site/footer";
-import { getAllProperties, getPropertyTags } from "@/lib/repositories/property.repository";
+import { TODOS, findPublishedList, listTipos } from "@/server/properties/repository";
 
-const allProperties = getAllProperties();
-const tipos = getPropertyTags();
+// PENDENTE (parte 3): esta página ainda é "use client" e embarca o acervo
+// inteiro no bundle, além de guardar o filtro em useState — o que deixa a URL
+// sem o filtro, impede compartilhar o link e tira a página do índice do Google.
+// Vira Server Component com o filtro em searchParams.
+const allProperties = findPublishedList();
+
+// "Todos" é montado aqui, na UI: listTipos() devolve só os tipos que existem
+// no acervo. Rótulo de botão não sai da camada de dados.
+const tipos = [TODOS, ...listTipos()];
 
 export default function ImoveisPage() {
-  const [filter, setFilter] = useState("Todos");
-  const filtered = filter === "Todos" ? allProperties : allProperties.filter((p) => p.tag === filter);
+  const [filter, setFilter] = useState<string>(TODOS);
+  const filtered = filter === TODOS ? allProperties : allProperties.filter((p) => p.tag === filter);
 
   return (
     <>

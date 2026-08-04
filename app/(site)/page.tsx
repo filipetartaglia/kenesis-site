@@ -8,7 +8,11 @@ import { Equipe } from "@/components/site/equipe";
 import { Depoimentos } from "@/components/site/depoimentos";
 import { Faq } from "@/components/site/faq";
 import { Footer } from "@/components/site/footer";
+import { countPublished, findFeatured } from "@/server/properties/repository";
+import { findPublicTeam } from "@/server/users/repository";
 
+// A página é quem fala com a camada de dados e entrega pronto aos componentes.
+// É o único lugar do app onde server/ pode ser importado.
 export default function HomePage() {
   return (
     <>
@@ -17,9 +21,9 @@ export default function HomePage() {
         <Hero />
         <Sobre />
         <Categorias />
-        <Destaques />
+        <Destaques properties={findFeatured(6)} total={countPublished()} />
         <Servicos />
-        <Equipe />
+        <Equipe members={findPublicTeam()} />
         <Depoimentos />
         <Faq />
       </div>
