@@ -1,19 +1,12 @@
-export type Property = {
-  id: number;
-  slug: string;
-  tag: string;
-  title: string;
-  location: string;
-  price: string;
-  note?: string;
-  beds?: number;
-  baths?: number;
-  garage?: number;
-  area?: string;
-  desc: string;
-  img: string;
-  gallery: string[];
-};
+import type { Property } from "@/types";
+
+// Fonte em memória do acervo, temporária. Mora em server/ e não em lib/content/
+// porque isto é DADO GERENCIADO — vai virar a tabela `properties` no Postgres.
+// lib/content/ guarda o oposto: conteúdo que fica em código para sempre (FAQ,
+// categorias, serviços — 16 registros que mudam ~2x por ano, spec D3).
+//
+// Só server/properties/repository.ts sabe que este arquivo existe. Quando o
+// banco entrar, ele some e nada mais precisa ser tocado.
 
 const gallery = (slug: string, count: number) =>
   Array.from(
@@ -151,60 +144,3 @@ export const properties: Property[] = [
     desc: "Um empreendimento Joama para quem busca um novo endereço em Niterói. Consulte a equipe Kenesis para receber o material completo e as condições vigentes.",
   }),
 ];
-
-export const testimonials = [
-  { quote: "Entenderam exatamente o que buscávamos. Vimos imóveis que faziam sentido para a nossa família, e a agilidade fez toda a diferença na negociação.", name: "Mariana Drummond", role: "Compradora", img: "https://framerusercontent.com/images/gA1SCU5nhjQJUNwN4dAS9raqw.webp?width=749&height=622" },
-  { quote: "Cada etapa foi conduzida com transparência e segurança jurídica de ponta a ponta. Uma negociação sem sobressaltos, do início ao fim.", name: "Ricardo Fonseca", role: "Investidor", img: "https://framerusercontent.com/images/2dvCOPoaEniJFuC835ZxLdqZ0.webp?width=429&height=369" },
-];
-
-export const categorias = [
-  { title: "Imóveis prontos", desc: "Casas e apartamentos de médio e alto padrão prontos para morar." },
-  { title: "Terrenos", desc: "Terrenos para construir com mais liberdade, privacidade e localização privilegiada." },
-  { title: "Empreendimentos", desc: "Lançamentos para morar ou investir em Niterói e região." },
-];
-
-export const servicos = [
-  { title: "Imóveis", desc: "Opções de médio e alto padrão para morar, investir ou começar um novo projeto." },
-  { title: "Corretores", desc: "Atendimento próximo para entender seu momento, tirar dúvidas e organizar visitas." },
-  { title: "Equipe financeira", desc: "Apoio para avaliar financiamento e encontrar a melhor condição para sua compra." },
-];
-
-export const equipe = [
-  {
-    name: "Filipe Moura",
-    role: "CEO & Estratégia",
-    location: "Niterói, Rio de Janeiro",
-    photo: "/team/filipe-moura.png",
-    bio: "Sócio-fundador da Kenesis, Filipe é a mente por trás da estratégia e do posicionamento da marca. Com background em assessoria e serviços cartoriais, traz uma visão criativa e orientada a resultado — do planejamento ao marketing, conduz o negócio com propósito e consistência.",
-    whatsapp: "5521976248282",
-  },
-  {
-    name: "Filipe Tartaglia",
-    role: "CEO & CTO · Corretor CRECI",
-    location: "Niterói, Rio de Janeiro",
-    photo: "/team/filipe-tartaglia.png",
-    bio: "Co-fundador e o cérebro técnico da operação. Corretor credenciado que une inteligência de mercado com tecnologia de ponta — do sistema de gestão às estratégias de venda, é quem mantém a Kenesis sempre um passo à frente. Rigoroso, criterioso e obcecado por excelência.",
-    whatsapp: "5521976248282",
-  },
-  {
-    name: "Vinicius Rodrigues",
-    role: "Relacionamento & Atendimento",
-    location: "Niterói, Rio de Janeiro",
-    photo: "/team/vinicius-rodrigues.png",
-    bio: "O rosto do atendimento Kenesis. Vinicius tem o dom raro de fazer qualquer cliente se sentir em casa — negocia com maestria, se comunica com clareza e organiza a equipe de corretores com inteligência. É ele que transforma o primeiro contato em confiança.",
-    whatsapp: "5521976248282",
-  },
-];
-
-export const faqs = [
-  { q: "Que tipos de imóveis a Kenesis oferece?", a: "Trabalhamos com casas, apartamentos, terrenos e empreendimentos de médio e alto padrão, para morar ou investir." },
-  { q: "Vocês atendem só Niterói e região?", a: "Nosso foco principal é Niterói, o Rio de Janeiro e a Região Metropolitana. Para outras localidades, avaliamos cada oportunidade sob consulta." },
-  { q: "Como posso agendar uma visita?", a: "Fale com a nossa equipe pelo WhatsApp. Entendemos o que você busca, confirmamos a disponibilidade e combinamos o melhor horário para a visita." },
-  { q: "Posso financiar a compra de um imóvel?", a: "Sim. Nossa equipe ajuda você a entender as possibilidades de financiamento e as condições adequadas ao seu perfil e ao imóvel escolhido." },
-  { q: "A Kenesis também atende quem quer vender um imóvel?", a: "Sim. Apresentamos uma estratégia de divulgação e acompanhamos todo o processo de venda, da precificação à documentação." },
-  { q: "Vocês trabalham com imóveis na planta e lançamentos?", a: "Sim. Temos empreendimentos em lançamento e imóveis na planta, com informações sobre unidades, condições comerciais e previsão de entrega." },
-  { q: "Como é feita a negociação e a parte jurídica?", a: "Acompanhamos cada etapa da negociação, do interesse inicial à assinatura, com atenção à documentação para trazer mais segurança a compradores e vendedores." },
-  { q: "Os valores e condições dos imóveis estão atualizados?", a: "As condições podem mudar conforme a disponibilidade. Entre em contato para receber informações atualizadas sobre valores, unidades e formas de pagamento." },
-];
-
-export const HOME_SECTIONS = ["Sobre", "Categorias", "Serviços", "Equipe", "Depoimentos", "FAQ", "Contato"];

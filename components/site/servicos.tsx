@@ -1,7 +1,8 @@
-import { Home, Users, Wallet } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
-import { servicos } from "@/lib/data";
+import { servicos } from "@/lib/content/sections";
+import { Home, Users, Wallet } from "lucide-react";
 
+// Conteúdo estático, sem repositório — mesmo motivo de categorias.tsx.
 const icons = [Home, Users, Wallet];
 
 export function Servicos() {

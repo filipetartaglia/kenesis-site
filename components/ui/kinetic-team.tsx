@@ -4,17 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export type TeamMember = {
-  name: string;
-  role: string;
-  location: string;
-  bio?: string;
-  photo?: string;
-  whatsapp?: string;
-  instagram?: string;
-  initials?: string;
-};
+import type { TeamMember } from "@/types";
 
 export function KineticTeam({ members }: { members: TeamMember[] }) {
   const [active, setActive] = useState<number | null>(null);

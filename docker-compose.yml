@@ -1,0 +1,29 @@
+# Postgres local de desenvolvimento.
+#   npm run db:up     sobe
+#   npm run db:down   derruba (mantém os dados no volume)
+#
+# Porta 5433 e não 5432: a 5432 é reivindicada por outros projetos desta máquina
+# e o conflito só aparece quando os dois sobem juntos.
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: kenesis-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kenesis
+      POSTGRES_PASSWORD: kenesis
+      POSTGRES_DB: kenesis
+      # Ordena e compara texto em pt-BR — é o que faz "Ávila" cair antes de "Bastos".
+      LANG: pt_BR.utf8
+    ports:
+      - "5433:5432"
+    volumes:
+      - kenesis-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kenesis -d kenesis"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  kenesis-pgdata:

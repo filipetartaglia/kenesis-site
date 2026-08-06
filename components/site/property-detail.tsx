@@ -3,15 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, MapPin, Bed, Bath, Car, Maximize2 } from "lucide-react";
-import { Property, properties } from "@/lib/data";
+import type { Property } from "@/types";
 import { ExpandMap } from "@/components/site/expand-map";
 import { PropertyCard } from "@/components/site/property-card";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 
-export function PropertyDetail({ property }: { property: Property }) {
+// `similar` chega pronto do servidor. Calcular aqui obrigava a importar o
+// acervo inteiro em toda página de imóvel — e como este componente é
+// "use client", os 20 imóveis viajavam no bundle de cada uma delas.
+export function PropertyDetail({ property, similar }: { property: Property; similar: Property[] }) {
   const [active, setActive] = useState(0);
   const [sent, setSent] = useState(false);
-  const others = properties.filter((p) => p.id !== property.id).slice(0, 3);
 
   return (
     <div className="mx-auto max-w-6xl px-6 pb-28 pt-32 lg:px-10">
@@ -112,12 +114,12 @@ export function PropertyDetail({ property }: { property: Property }) {
         </div>
       </div>
 
-      {others.length > 0 && (
+      {similar.length > 0 && (
         <div className="mt-20">
           <h3 className="font-display text-2xl text-kenesis-greenDark">Imóveis semelhantes</h3>
           <div className="mt-8 grid gap-7 sm:grid-cols-3">
-            {others.map((p) => (
-              <PropertyCard key={p.id} p={p} />
+            {similar.map((p) => (
+              <PropertyCard key={p.slug} p={p} />
             ))}
           </div>
         </div>

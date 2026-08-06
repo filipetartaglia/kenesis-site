@@ -2,7 +2,8 @@
 
 import { Reveal } from "@/components/site/reveal";
 import { FaqMonochrome } from "@/components/ui/faq-monochrome";
-import { faqs } from "@/lib/data";
+// Conteúdo estático, sem repositório — mesmo motivo de categorias.tsx.
+import { faqs } from "@/lib/content/faq";
 
 export function Faq() {
   return (
