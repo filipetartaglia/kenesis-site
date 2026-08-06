@@ -1,9 +1,11 @@
 import { Reveal } from "@/components/site/reveal";
-import { getAllCategorias } from "@/lib/repositories/section.repository";
+import { categorias } from "@/lib/content/sections";
 import { Home, Landmark, Building2 } from "lucide-react";
 
+// Importa lib/content direto, sem repositório: categorias não vão para o banco
+// (spec D3), então nunca existirá outra implementação para trocar. Repositório
+// aqui seria uma camada que só repassa uma constante.
 const icons = [Home, Landmark, Building2];
-const categorias = getAllCategorias();
 
 export function Categorias() {
   return (

@@ -1,9 +1,9 @@
 import { Reveal } from "@/components/site/reveal";
-import { getAllServicos } from "@/lib/repositories/section.repository";
+import { servicos } from "@/lib/content/sections";
 import { Home, Users, Wallet } from "lucide-react";
 
+// Conteúdo estático, sem repositório — mesmo motivo de categorias.tsx.
 const icons = [Home, Users, Wallet];
-const servicos = getAllServicos();
 
 export function Servicos() {
   return (

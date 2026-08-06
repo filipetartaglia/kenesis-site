@@ -5,13 +5,17 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { PropertyCard } from "@/components/site/property-card";
 import { Reveal } from "@/components/site/reveal";
-import { getFeaturedProperties, getAllProperties } from "@/lib/repositories/property.repository";
+import type { Property } from "@/types";
 import { cn } from "@/lib/utils";
 
-const FEATURED = getFeaturedProperties(6);
-const totalCount = getAllProperties().length;
-
-export function Destaques() {
+// Este componente é "use client" por necessidade real — tem scroll horizontal
+// com estado. Justamente por isso não pode ler a fonte: importar o acervo aqui
+// mandava os 20 imóveis inteiros no bundle JavaScript da home. Com 200, inviável.
+//
+// `total` vem separado de `properties.length` de propósito: o card final diz
+// "Ver todos os imóveis — N propriedades", e N é o acervo inteiro, não os 6 do
+// carrossel. Antes funcionava por acidente, porque properties era o array todo.
+export function Destaques({ properties, total }: { properties: Property[]; total: number }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [atEnd, setAtEnd] = useState(false);
@@ -96,8 +100,8 @@ export function Destaques() {
           className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-6 pb-2 lg:px-10"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {FEATURED.map((p, i) => (
-            <div key={p.id} className="w-[300px] flex-none snap-center sm:w-[320px]">
+          {properties.map((p, i) => (
+            <div key={p.slug} className="w-[300px] flex-none snap-center sm:w-[320px]">
               <PropertyCard p={p} delay={i * 80} />
             </div>
           ))}
@@ -128,7 +132,7 @@ export function Destaques() {
                   Ver todos os imóveis
                 </p>
                 <p className="mt-1 text-sm text-white/40">
-                  {totalCount} propriedades
+                  {total} propriedades
                 </p>
               </div>
             </Link>

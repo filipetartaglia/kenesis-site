@@ -65,3 +65,9 @@ next-env.d.ts
 # Vercel / deploy
 # =============================
 .vercel
+
+# =============================
+# Ferramentas locais do agente (config de máquina, não do projeto)
+# =============================
+.claude/
+.mcp.json

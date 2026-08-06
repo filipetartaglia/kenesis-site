@@ -1,10 +1,11 @@
 import { Reveal } from "@/components/site/reveal";
 import { KineticTeam } from "@/components/ui/kinetic-team";
-import { getAllTeamMembers } from "@/lib/repositories/team.repository";
+import type { TeamMember } from "@/types";
 
-const members = getAllTeamMembers();
-
-export function Equipe() {
+// Recebe por prop em vez de ler a fonte: equipe vira tabela no banco, e
+// componente que busca o próprio dado não tem como ser montado em outro
+// contexto nem testado sem a fonte junto (spec §4, regra 1).
+export function Equipe({ members }: { members: TeamMember[] }) {
   return (
     <section id="equipe" data-nav="Equipe" className="bg-kenesis-greenDark px-6 py-28 lg:px-10 lg:py-36">
       <div className="mx-auto max-w-7xl">
