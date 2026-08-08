@@ -173,8 +173,15 @@ em `components/ui/`, sem precisar mover nada na mão.
 
 ## Onde trocar coisas
 
+<<<<<<< HEAD
+- **Imóveis, time, depoimentos, FAQ, números da seção Sobre** → tudo em `lib/data.ts`.
+- **Cores/fontes** → `tailwind.config.ts` (paleta `kenesis.*`) e variáveis CSS em `app/globals.css`.
+- **WhatsApp/e-mail** → `components/site/header.tsx` e `components/site/contato.tsx`.
+- **Fotos de imóveis e da equipe** são placeholders do site atual — troque os links em `lib/data.ts` quando tiver os arquivos finais.
+=======
 - **Equipe** → no painel, ou `server/users/data.ts` + `npm run db:seed`
 - **Imóveis** → `server/properties/data.ts` (ainda em memória; migra para o banco)
 - **FAQ, categorias, serviços** → `lib/content/`
 - **Nome, contatos e redes** → `lib/config.ts`
 - **Cores e fontes** → `tailwind.config.ts` (paleta `kenesis.*`) e `app/globals.css`
+>>>>>>> main

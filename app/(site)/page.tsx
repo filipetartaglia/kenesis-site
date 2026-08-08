@@ -27,13 +27,15 @@ export const revalidate = 300;
 
 export default async function HomePage() {
   const members = await findPublicTeam();
+  const featured = await findFeatured(6);
+  const total = await countPublished();
 
   return (
     <>
       <Hero />
       <Sobre />
       <Categorias />
-      <Destaques properties={findFeatured(6)} total={countPublished()} />
+      <Destaques properties={featured} total={total} />
       <Servicos />
       <Equipe members={members} />
       <Depoimentos />

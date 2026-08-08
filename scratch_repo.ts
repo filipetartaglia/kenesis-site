@@ -21,24 +21,13 @@ function capitalize(s: string) {
 
 function formatTag(type: string | null, segment: string | null): string {
   if (segment === "alto_padrao") return "Alto padrão";
-  if (type === "empreendimento") return "Empreendimento";
   return capitalize(type ?? "");
 }
 
-// Resolve o path da imagem para uma URL acessível.
-// Paths locais (ex: /imoveis/mansao-jardim-uba/01.webp) são retornados como estão.
-// Paths do Supabase Storage (ex: mansao-jardim-uba/123-abc.webp) recebem a URL base.
+// Para bucket public do supabase (vai ser preciso depois, por hora podemos colocar o path direto 
+// assumindo que os arquivos do seed usaram caminhos relativos na pasta public)
 function getImageUrl(path: string | null): string {
-  if (!path) return "/placeholder-image.jpg";
-  // Se já é um path absoluto local, retorna direto
-  if (path.startsWith("/")) return path;
-  // Se já é uma URL completa, retorna direto
-  if (path.startsWith("http")) return path;
-  // Caso contrário, é um path do Supabase Storage
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (supabaseUrl) {
-    return `${supabaseUrl}/storage/v1/object/public/properties/${path}`;
-  }
+  if (!path) return "/placeholder-image.jpg"; // Fallback
   return path;
 }
 
@@ -48,7 +37,7 @@ function mapRowToProperty(row: any): Property {
   const allImages: string[] = row.images || [];
   const covers: string[] = row.covers || [];
   
-  // Clean nulls from array_agg se ocorrerem (o sql `array_remove(..., NULL)` já cuida da maioria, mas é bom garantir)
+  // Clean nulls from array_agg if there are no images
   const cleanImages = allImages.filter(Boolean);
   const cleanCovers = covers.filter(Boolean);
   
@@ -93,7 +82,7 @@ export async function findPublishedList(filter?: { tipo?: string }): Promise<Pro
   const mapped = rows.map(mapRowToProperty);
   const tipo = filter?.tipo;
   if (!tipo || tipo === TODOS) return mapped;
-  return mapped.filter((p) => p.tag === tipo); 
+  return mapped.filter((p) => p.tag === tipo); // We do the tag filter in memory because 'tag' is mapped from segment and type
 }
 
 export async function findPublishedBySlug(slug: string): Promise<Property | null> {
@@ -115,23 +104,14 @@ export async function findPublishedBySlug(slug: string): Promise<Property | null
 
 export async function findFeatured(limit = 6): Promise<Property[]> {
   const rows = await buildBaseQuery()
-    // No Postgres local, ordenar por boolean requires desc (true > false)
     .orderBy(desc(properties.isFeatured), asc(properties.featuredOrder), desc(properties.publishedAt))
     .limit(limit);
   return rows.map(mapRowToProperty);
 }
 
 export async function findSimilar(slug: string, limit = 3): Promise<Property[]> {
-  const rows = await db
-    .select({
-      prop: properties,
-      images: sql<string[]>`array_remove(array_agg(${propertyImages.path} ORDER BY ${propertyImages.sortOrder}), NULL)`,
-      covers: sql<string[]>`array_remove(array_agg(${propertyImages.path}) FILTER (WHERE ${propertyImages.isCover}), NULL)`,
-    })
-    .from(properties)
-    .leftJoin(propertyImages, eq(properties.id, propertyImages.propertyId))
-    .where(and(eq(properties.status, "publicado"), ne(properties.slug, slug)))
-    .groupBy(properties.id)
+  const rows = await buildBaseQuery()
+    .having(ne(properties.slug, slug))
     .orderBy(desc(properties.publishedAt))
     .limit(limit);
   return rows.map(mapRowToProperty);

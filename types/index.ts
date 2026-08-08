@@ -1,7 +1,7 @@
 /** Core domain types for the Kenesis platform */
 
 export interface Property {
-  id: number;
+  id: string;
   slug: string;
   tag: string;
   title: string;
