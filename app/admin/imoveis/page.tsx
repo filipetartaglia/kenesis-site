@@ -6,6 +6,8 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { DeletePropertyButton } from "@/components/admin/delete-property-button";
 import { findAllForAdmin } from "@/server/properties/actions";
 
+export const dynamic = "force-dynamic";
+
 function formatPrice(cents: number | null, visible: boolean): string {
   if (!visible || cents === null) return "Consulte";
   return new Intl.NumberFormat("pt-BR", {
