@@ -4,7 +4,7 @@ import { listSlugs } from "@/server/properties/repository";
 /**
  * Gera o sitemap.xml automaticamente com base nas rotas existentes e nos imóveis cadastrados.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://kenesis.com.br";
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -22,7 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const propertyRoutes: MetadataRoute.Sitemap = listSlugs().map((slug) => ({
+  const slugs = await listSlugs();
+  const propertyRoutes: MetadataRoute.Sitemap = slugs.map((slug) => ({
     url: `${baseUrl}/imoveis/${slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,

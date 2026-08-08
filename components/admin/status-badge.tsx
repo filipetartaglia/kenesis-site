@@ -9,9 +9,15 @@ export function StatusBadge({ status, className }: BadgeProps) {
   const getColors = () => {
     switch (status.toLowerCase()) {
       case "ativo":
+      case "publicado":
       case "novo":
         return "bg-green-100 text-green-700";
+      case "rascunho":
+        return "bg-yellow-100 text-yellow-700";
+      case "reservado":
+        return "bg-blue-100 text-blue-700";
       case "inativo":
+      case "arquivado":
         return "bg-red-100 text-red-700";
       case "vendido":
       case "finalizado":

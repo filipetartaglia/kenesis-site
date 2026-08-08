@@ -11,12 +11,12 @@ export default function NovoImovelPage() {
         Voltar para imóveis
       </Link>
 
-      <AdminPageHeader 
-        title="Novo Imóvel" 
+      <AdminPageHeader
+        title="Novo Imóvel"
         description="Cadastre um novo imóvel no portfólio."
       />
 
-      <PropertyForm />
+      <PropertyForm supabaseUrl={process.env.NEXT_PUBLIC_SUPABASE_URL} />
     </div>
   );
 }

@@ -1,14 +1,24 @@
 "use client";
 
 import { FilterBadge } from "@/components/ui/filter-badge";
+import { useRouter } from "next/navigation";
 
 interface PropertyFiltersProps {
   tipos: string[];
   active: string;
-  onChange: (tipo: string) => void;
 }
 
-export function PropertyFilters({ tipos, active, onChange }: PropertyFiltersProps) {
+export function PropertyFilters({ tipos, active }: PropertyFiltersProps) {
+  const router = useRouter();
+
+  const onChange = (tipo: string) => {
+    if (tipo === "Todos") {
+      router.push("/imoveis");
+    } else {
+      router.push(`/imoveis?tipo=${encodeURIComponent(tipo)}`);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">

@@ -8,14 +8,16 @@ import {
 
 // Header, Footer e o wrapper vêm de app/(site)/layout.tsx.
 
-export function generateStaticParams() {
-  return listSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await listSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export default async function ImovelPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const property = findPublishedBySlug(slug);
+  const property = await findPublishedBySlug(slug);
   if (!property) return notFound();
 
-  return <PropertyDetail property={property} similar={findSimilar(property.slug, 3)} />;
+  const similar = await findSimilar(property.slug, 3);
+  return <PropertyDetail property={property} similar={similar} />;
 }
