@@ -5,6 +5,7 @@ import { DataTable } from "@/components/admin/data-table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { DeletePropertyButton } from "@/components/admin/delete-property-button";
 import { findAllForAdmin } from "@/server/properties/actions";
+import { getImageUrl } from "@/server/properties/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +52,7 @@ export default async function ImoveisPage() {
         <div className="h-10 w-16 overflow-hidden rounded bg-gray-100">
           {row.coverImage && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={row.coverImage} alt={row.title} className="h-full w-full object-cover" />
+            <img src={getImageUrl(row.coverImage)} alt={row.title} className="h-full w-full object-cover" />
           )}
         </div>
       ),

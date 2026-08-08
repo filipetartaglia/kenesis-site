@@ -28,7 +28,7 @@ function formatTag(type: string | null, segment: string | null): string {
 // Resolve o path da imagem para uma URL acessível.
 // Paths locais (ex: /imoveis/mansao-jardim-uba/01.webp) são retornados como estão.
 // Paths do Supabase Storage (ex: mansao-jardim-uba/123-abc.webp) recebem a URL base.
-function getImageUrl(path: string | null): string {
+export function getImageUrl(path: string | null): string {
   if (!path) return "/placeholder-image.jpg";
   // Se já é um path absoluto local, retorna direto
   if (path.startsWith("/")) return path;
