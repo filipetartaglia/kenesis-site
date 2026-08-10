@@ -1,7 +1,23 @@
 import { Reveal } from "@/components/site/reveal";
 import { StaggerTestimonials } from "@/components/ui/stagger-testimonials";
+import { findPublishedTestimonials, getTestimonialImageUrl } from "@/server/testimonials/repository";
 
-export function Depoimentos() {
+export async function Depoimentos() {
+  const rows = await findPublishedTestimonials();
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  const testimonials = rows.map((r, i) => ({
+    id: r.id,
+    tempId: i,
+    quote: r.quote,
+    authorName: r.authorName,
+    authorRole: r.authorRole,
+    photoUrl: getTestimonialImageUrl(r.photoPath),
+  }));
+
   return (
     <section
       id="depoimentos"
@@ -22,7 +38,7 @@ export function Depoimentos() {
 
       {/* Stagger carousel — sem overflow:hidden para não cortar ao rolar */}
       <div className="relative mt-14">
-        <StaggerTestimonials />
+        <StaggerTestimonials testimonials={testimonials} />
       </div>
     </section>
   );

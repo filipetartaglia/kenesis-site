@@ -7,6 +7,8 @@ import type { Property } from "@/types";
 import { ExpandMap } from "@/components/site/expand-map";
 import { PropertyCard } from "@/components/site/property-card";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { createLead } from "@/server/leads/actions";
+import { siteConfig } from "@/lib/config";
 
 // `similar` chega pronto do servidor. Calcular aqui obrigava a importar o
 // acervo inteiro em toda página de imóvel — e como este componente é
@@ -14,6 +16,52 @@ import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button
 export function PropertyDetail({ property, similar }: { property: Property; similar: Property[] }) {
   const [active, setActive] = useState(0);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDirectLoading, setIsDirectLoading] = useState(false);
+
+  async function handleDirectWhatsApp() {
+    setIsDirectLoading(true);
+    // Salva um lead "anônimo" para registro
+    await createLead({
+      name: "Contato Direto (WhatsApp)",
+      phone: "Não informado",
+      propertyId: property.id,
+    });
+    setIsDirectLoading(false);
+    
+    const text = `Olá, tenho interesse no imóvel: ${property.title}.`;
+    const whatsappUrl = `https://wa.me/${siteConfig.whatsapp}?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, "_blank");
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get("name") as string,
+      phone: formData.get("phone") as string,
+      email: formData.get("email") as string,
+      message: formData.get("message") as string,
+      propertyId: property.id,
+    };
+
+    const result = await createLead(data);
+
+    if (result.error) {
+      setError(result.error);
+      setIsSubmitting(false);
+    } else {
+      setIsSubmitting(false);
+      const text = `Olá, meu nome é ${data.name}. Tenho interesse no imóvel: ${property.title}.`;
+      const whatsappUrl = `https://wa.me/${siteConfig.whatsapp}?text=${encodeURIComponent(text)}`;
+      window.open(whatsappUrl, "_blank");
+      setSent(true);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-6 pb-28 pt-32 lg:px-10">
@@ -82,33 +130,59 @@ export function PropertyDetail({ property, similar }: { property: Property; simi
           ) : (
             <form
               className="mt-6 space-y-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setSent(true);
-              }}
+              onSubmit={handleSubmit}
             >
+              {error && (
+                <div className="rounded-lg bg-red-50 p-3 text-xs text-red-600">
+                  {error}
+                </div>
+              )}
               <input
                 required
+                name="name"
                 placeholder="Nome"
                 className="w-full rounded-lg border-0 bg-white px-4 py-3 text-sm outline-none ring-1 ring-black/10 focus:ring-2"
               />
               <input
                 required
+                name="phone"
                 placeholder="Telefone / WhatsApp"
                 className="w-full rounded-lg border-0 bg-white px-4 py-3 text-sm outline-none ring-1 ring-black/10 focus:ring-2"
               />
               <input
-                required
+                name="email"
                 type="email"
                 placeholder="E-mail"
                 className="w-full rounded-lg border-0 bg-white px-4 py-3 text-sm outline-none ring-1 ring-black/10 focus:ring-2"
               />
               <textarea
+                name="message"
                 rows={3}
                 placeholder="Mensagem (opcional)"
                 className="w-full rounded-lg border-0 bg-white px-4 py-3 text-sm outline-none ring-1 ring-black/10 focus:ring-2"
               />
-              <InteractiveHoverButton type="submit" text="Enviar interesse" className="w-full bg-kenesis-lime" />
+              <div className="flex flex-col gap-3 pt-2">
+                <InteractiveHoverButton 
+                  type="submit" 
+                  text={isSubmitting ? "Processando..." : "Enviar e Chamar WhatsApp"} 
+                  className="w-full bg-kenesis-lime text-kenesis-greenDark" 
+                />
+                
+                <div className="relative flex items-center py-2">
+                  <div className="flex-grow border-t border-gray-200"></div>
+                  <span className="flex-shrink-0 px-4 text-[11px] text-gray-400 uppercase tracking-wider font-semibold">ou</span>
+                  <div className="flex-grow border-t border-gray-200"></div>
+                </div>
+
+                <button 
+                  type="button" 
+                  onClick={handleDirectWhatsApp}
+                  disabled={isDirectLoading}
+                  className="w-full rounded-full bg-[#25D366] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#20ba59] disabled:opacity-50"
+                >
+                  {isDirectLoading ? "Abrindo..." : "Falar direto no WhatsApp"}
+                </button>
+              </div>
             </form>
           )}
         </div>
