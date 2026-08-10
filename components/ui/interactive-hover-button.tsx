@@ -11,6 +11,8 @@ type InteractiveHoverButtonProps = {
   target?: string;
   rel?: string;
   type?: "button" | "submit" | "reset";
+  name?: string;
+  value?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 };
 
@@ -21,6 +23,8 @@ function InteractiveHoverButton({
   target,
   rel,
   type = "button",
+  name,
+  value,
   onClick,
 }: InteractiveHoverButtonProps) {
   const classes = cn(
@@ -61,7 +65,7 @@ function InteractiveHoverButton({
   }
 
   return (
-    <button type={type} onClick={onClick} className={classes}>
+    <button type={type} name={name} value={value} onClick={onClick} className={classes}>
       {content}
     </button>
   );

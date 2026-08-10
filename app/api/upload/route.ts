@@ -1,7 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 
-const BUCKET = "properties";
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
@@ -9,6 +8,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const folder = formData.get("folder") as string | null; // ex: "mansao-jardim-uba"
+    const bucket = (formData.get("bucket") as string) || "properties";
 
     if (!file) {
       return NextResponse.json({ error: "Nenhum arquivo enviado." }, { status: 400 });
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
 
     const { data, error } = await supabase.storage
-      .from(BUCKET)
+      .from(bucket)
       .upload(storagePath, file, {
         contentType: file.type,
         upsert: false,
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     // Gerar URL pública
     const { data: publicUrl } = supabase.storage
-      .from(BUCKET)
+      .from(bucket)
       .getPublicUrl(data.path);
 
     return NextResponse.json({
@@ -63,13 +63,13 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { path } = await request.json();
+    const { path, bucket = "properties" } = await request.json();
     if (!path) {
       return NextResponse.json({ error: "Caminho não informado." }, { status: 400 });
     }
 
     const supabase = createAdminClient();
-    const { error } = await supabase.storage.from(BUCKET).remove([path]);
+    const { error } = await supabase.storage.from(bucket).remove([path]);
 
     if (error) {
       console.error("Supabase Storage delete error:", error);

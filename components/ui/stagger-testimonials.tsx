@@ -6,60 +6,18 @@ import { cn } from '@/lib/utils';
 
 const SQRT_5000 = Math.sqrt(5000);
 
-const kinesisTestimonials = [
-  {
-    tempId: 0,
-    testimonial: "Entenderam exatamente o que buscávamos. Vimos imóveis que faziam sentido para a nossa família, e a agilidade fez toda a diferença na negociação.",
-    by: "Mariana Drummond, Compradora",
-    imgSrc: "https://framerusercontent.com/images/gA1SCU5nhjQJUNwN4dAS9raqw.webp?width=200&height=200"
-  },
-  {
-    tempId: 1,
-    testimonial: "Cada etapa foi conduzida com transparência e segurança jurídica de ponta a ponta. Uma negociação sem sobressaltos, do início ao fim.",
-    by: "Ricardo Fonseca, Investidor",
-    imgSrc: "https://framerusercontent.com/images/2dvCOPoaEniJFuC835ZxLdqZ0.webp?width=200&height=200"
-  },
-  {
-    tempId: 2,
-    testimonial: "A equipe Kenesis foi incrivelmente atenciosa e profissional. Encontraram o imóvel perfeito para o meu perfil em tempo recorde.",
-    by: "Camila Souza, Compradora",
-    imgSrc: "https://i.pravatar.cc/150?img=47"
-  },
-  {
-    tempId: 3,
-    testimonial: "Nunca imaginei que comprar um apartamento poderia ser tão tranquilo. A Kenesis cuida de tudo com muita competência.",
-    by: "Rafael Mendes, Comprador",
-    imgSrc: "https://i.pravatar.cc/150?img=11"
-  },
-  {
-    tempId: 4,
-    testimonial: "Atendimento impecável e conhecimento profundo do mercado de Niterói. Recomendo sem hesitar a qualquer pessoa.",
-    by: "Fernanda Lima, Investidora",
-    imgSrc: "https://i.pravatar.cc/150?img=44"
-  },
-  {
-    tempId: 5,
-    testimonial: "O suporte jurídico e financeiro que a Kenesis oferece faz toda a diferença. Me senti segura do começo ao fim.",
-    by: "Ana Beatriz Costa, Compradora",
-    imgSrc: "https://i.pravatar.cc/150?img=49"
-  },
-  {
-    tempId: 6,
-    testimonial: "Excelência no atendimento. A equipe entende o que o cliente precisa e apresenta as opções certas, sem enrolação.",
-    by: "Bruno Cavalcanti, Investidor",
-    imgSrc: "https://i.pravatar.cc/150?img=12"
-  },
-  {
-    tempId: 7,
-    testimonial: "Precisava de um imóvel em São Francisco e a Kenesis encontrou exatamente o que eu queria, no prazo que eu precisava.",
-    by: "Juliana Rios, Compradora",
-    imgSrc: "https://i.pravatar.cc/150?img=45"
-  },
-];
+export type TestimonialItem = {
+  id: string;
+  tempId: number;
+  quote: string;
+  authorName: string;
+  authorRole: string | null;
+  photoUrl: string | null;
+};
 
 interface TestimonialCardProps {
   position: number;
-  testimonial: typeof kinesisTestimonials[0];
+  testimonial: TestimonialItem;
   handleMove: (steps: number) => void;
   cardSize: number;
 }
@@ -110,8 +68,8 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={testimonial.imgSrc}
-        alt={testimonial.by.split(',')[0]}
+        src={testimonial.photoUrl || "https://i.pravatar.cc/150?img=68"}
+        alt={testimonial.authorName}
         className="mb-4 h-14 w-12 bg-kenesis-green/20 object-cover object-top"
         style={{
           boxShadow: isCenter
@@ -123,22 +81,27 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         "text-base sm:text-lg font-medium leading-snug",
         isCenter ? "text-white" : "text-kenesis-greenDark"
       )}>
-        &ldquo;{testimonial.testimonial}&rdquo;
+        &ldquo;{testimonial.quote}&rdquo;
       </h3>
       <p className={cn(
         "absolute bottom-8 left-8 right-8 mt-2 text-sm italic",
         isCenter ? "text-kenesis-lime" : "text-kenesis-green/70"
       )}>
-        — {testimonial.by}
+        — {testimonial.authorName}{testimonial.authorRole ? `, ${testimonial.authorRole}` : ""}
       </p>
     </div>
   );
 };
 
-export const StaggerTestimonials: React.FC = () => {
+export const StaggerTestimonials: React.FC<{ testimonials: TestimonialItem[] }> = ({ testimonials }) => {
   const [cardSize, setCardSize] = useState(365);
-  const [testimonialsList, setTestimonialsList] = useState(kinesisTestimonials);
+  const [testimonialsList, setTestimonialsList] = useState(testimonials);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Sync if props change
+  useEffect(() => {
+    setTestimonialsList(testimonials);
+  }, [testimonials]);
 
   const handleMove = (steps: number) => {
     const newList = [...testimonialsList];
