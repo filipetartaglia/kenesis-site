@@ -3,6 +3,7 @@
 import { useFormState, useFormStatus } from "react-dom";
 import { AdminCard } from "./admin-card";
 import { PropertyGallery } from "./property-gallery";
+import { FeaturesInput } from "./features-input";
 import { createProperty, updateProperty } from "@/server/properties/actions";
 import type { AdminPropertyFull, PropertyFormState } from "@/server/properties/actions";
 import { useRouter } from "next/navigation";
@@ -190,6 +191,46 @@ export function PropertyForm({ initialData, supabaseUrl }: Props) {
                   defaultValue={initialData?.neighborhood || ""}
                 />
               </div>
+              <div>
+                <label htmlFor="addressNumber" className="mb-1 block text-sm font-medium text-gray-700">
+                  Número
+                </label>
+                <input
+                  id="addressNumber"
+                  name="addressNumber"
+                  type="text"
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
+                  placeholder="123"
+                  defaultValue={initialData?.addressNumber || ""}
+                />
+              </div>
+              <div>
+                <label htmlFor="addressComplement" className="mb-1 block text-sm font-medium text-gray-700">
+                  Complemento
+                </label>
+                <input
+                  id="addressComplement"
+                  name="addressComplement"
+                  type="text"
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
+                  placeholder="Bloco A, Apto 101"
+                  defaultValue={initialData?.addressComplement || ""}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <input
+                    type="checkbox"
+                    name="addressVisible"
+                    className="rounded border-gray-300 text-kenesis-green focus:ring-kenesis-green"
+                    defaultChecked={initialData?.addressVisible ?? false}
+                  />
+                  Exibir endereço completo no site
+                </label>
+                <p className="mt-1 text-xs text-gray-500">
+                  Por segurança, o endereço fica oculto por padrão. Apenas bairro e cidade são exibidos.
+                </p>
+              </div>
             </div>
           </AdminCard>
 
@@ -199,6 +240,48 @@ export function PropertyForm({ initialData, supabaseUrl }: Props) {
               initialImages={initialData?.images}
               supabaseUrl={supabaseUrl}
             />
+          </AdminCard>
+
+          <AdminCard className="p-6">
+            <h3 className="mb-4 text-sm font-semibold text-gray-900">Comodidades e Diferenciais</h3>
+            <FeaturesInput initialFeatures={initialData?.features} />
+          </AdminCard>
+
+          <AdminCard className="p-6">
+            <h3 className="mb-4 text-sm font-semibold text-gray-900">SEO</h3>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="metaTitle" className="mb-1 block text-sm font-medium text-gray-700">
+                  Título SEO
+                </label>
+                <input
+                  id="metaTitle"
+                  name="metaTitle"
+                  type="text"
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
+                  placeholder="Título otimizado para buscadores (máx. 60 caracteres)"
+                  maxLength={70}
+                  defaultValue={initialData?.metaTitle || ""}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Se vazio, usa o título do imóvel.
+                </p>
+              </div>
+              <div>
+                <label htmlFor="metaDescription" className="mb-1 block text-sm font-medium text-gray-700">
+                  Descrição SEO
+                </label>
+                <textarea
+                  id="metaDescription"
+                  name="metaDescription"
+                  rows={2}
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
+                  placeholder="Descrição que aparece nos resultados de busca (máx. 160 caracteres)"
+                  maxLength={170}
+                  defaultValue={initialData?.metaDescription || ""}
+                />
+              </div>
+            </div>
           </AdminCard>
         </div>
 
@@ -336,6 +419,23 @@ export function PropertyForm({ initialData, supabaseUrl }: Props) {
                 />
                 Destaque na página inicial
               </label>
+              <div>
+                <label htmlFor="featuredOrder" className="mb-1 block text-sm font-medium text-gray-700">
+                  Ordem do destaque
+                </label>
+                <input
+                  id="featuredOrder"
+                  name="featuredOrder"
+                  type="number"
+                  min={0}
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
+                  placeholder="0"
+                  defaultValue={initialData?.featuredOrder ?? ""}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Menor número aparece primeiro. Deixe vazio para ordenação automática.
+                </p>
+              </div>
             </div>
           </AdminCard>
 

@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { properties, propertyImages } from "@/db/schema";
+import { properties, propertyImages, propertySlugHistory } from "@/db/schema";
 import type { Property } from "@/types";
 import { and, asc, desc, eq, inArray, isNotNull, ne, sql } from "drizzle-orm";
 
@@ -156,4 +156,26 @@ export async function countPublished(): Promise<number> {
     .from(properties)
     .where(eq(properties.status, "publicado"));
   return Number(result[0]?.count || 0);
+}
+
+/**
+ * Busca o slug atual de um imóvel a partir de um slug antigo.
+ * Usado para 301 redirect quando o slug muda.
+ */
+export async function findCurrentSlugByOldSlug(oldSlug: string): Promise<string | null> {
+  const [row] = await db
+    .select({ propertyId: propertySlugHistory.propertyId })
+    .from(propertySlugHistory)
+    .where(eq(propertySlugHistory.slug, oldSlug))
+    .limit(1);
+
+  if (!row) return null;
+
+  const [property] = await db
+    .select({ slug: properties.slug })
+    .from(properties)
+    .where(eq(properties.id, row.propertyId))
+    .limit(1);
+
+  return property?.slug ?? null;
 }

@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db/client";
-import { properties, propertyImages } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { properties, propertyImages, propertySlugHistory } from "@/db/schema";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -38,6 +38,12 @@ type PropertyFormData = {
   addressStreet?: string | null;
   isFeatured: boolean;
   featuredOrder?: number | null;
+  addressNumber?: string | null;
+  addressComplement?: string | null;
+  addressVisible: boolean;
+  features?: string[] | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
 };
 
 // --------------- Helpers ---------------
@@ -88,8 +94,19 @@ function extractFormData(formData: FormData): PropertyFormData {
     state: (formData.get("state") as string) || "RJ",
     zip: (formData.get("zip") as string) || null,
     addressStreet: (formData.get("addressStreet") as string) || null,
+    addressNumber: (formData.get("addressNumber") as string) || null,
+    addressComplement: (formData.get("addressComplement") as string) || null,
+    addressVisible: formData.get("addressVisible") === "on",
     isFeatured: formData.get("isFeatured") === "on",
     featuredOrder: parseIntOrNull(formData.get("featuredOrder") as string),
+    features: (() => {
+      try {
+        const raw = JSON.parse((formData.get("features") as string) || "[]");
+        return Array.isArray(raw) && raw.length > 0 ? raw : null;
+      } catch { return null; }
+    })(),
+    metaTitle: (formData.get("metaTitle") as string) || null,
+    metaDescription: (formData.get("metaDescription") as string) || null,
   };
 }
 
@@ -176,12 +193,19 @@ export async function updateProperty(
       return { error: `O slug "${data.slug}" já está em uso por outro imóvel.` };
     }
 
-    // Buscar status anterior para determinar publishedAt
+    // Buscar status e slug anterior
     const [current] = await db
-      .select({ status: properties.status, publishedAt: properties.publishedAt })
+      .select({ status: properties.status, publishedAt: properties.publishedAt, slug: properties.slug })
       .from(properties)
       .where(eq(properties.id, id))
       .limit(1);
+
+    // Salvar slug antigo no histórico se mudou (301 redirect)
+    if (current && current.slug !== data.slug) {
+      await db.insert(propertySlugHistory)
+        .values({ propertyId: id, slug: current.slug })
+        .onConflictDoNothing();
+    }
 
     let publishedAt = current?.publishedAt ?? null;
     if (data.status === "publicado" && current?.status !== "publicado") {
@@ -259,7 +283,25 @@ export type AdminProperty = {
   createdAt: Date;
 };
 
-export async function findAllForAdmin(): Promise<AdminProperty[]> {
+export type AdminFilters = {
+  search?: string;
+  status?: string;
+  tipo?: string;
+};
+
+export async function findAllForAdmin(filters?: AdminFilters): Promise<AdminProperty[]> {
+  const conditions = [];
+
+  if (filters?.status) {
+    conditions.push(eq(properties.status, filters.status as any));
+  }
+  if (filters?.tipo) {
+    conditions.push(eq(properties.propertyType, filters.tipo as any));
+  }
+  if (filters?.search) {
+    conditions.push(sql`(${properties.title} ILIKE ${'%' + filters.search + '%'} OR ${properties.slug} ILIKE ${'%' + filters.search + '%'})`);
+  }
+
   const rows = await db
     .select({
       id: properties.id,
@@ -282,9 +324,60 @@ export async function findAllForAdmin(): Promise<AdminProperty[]> {
       createdAt: properties.createdAt,
     })
     .from(properties)
-    .orderBy(properties.createdAt);
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(properties.createdAt));
 
   return rows as AdminProperty[];
+}
+
+export async function togglePropertyStatus(
+  id: string,
+  newStatus: "publicado" | "arquivado"
+): Promise<{ error?: string }> {
+  try {
+    const updates: Record<string, any> = {
+      status: newStatus,
+      updatedAt: new Date(),
+    };
+    if (newStatus === "publicado") {
+      // Set publishedAt only if not already set
+      const [current] = await db
+        .select({ publishedAt: properties.publishedAt })
+        .from(properties)
+        .where(eq(properties.id, id))
+        .limit(1);
+      if (!current?.publishedAt) {
+        updates.publishedAt = new Date();
+      }
+    }
+
+    await db.update(properties).set(updates).where(eq(properties.id, id));
+
+    revalidatePath("/admin/imoveis");
+    revalidatePath("/imoveis");
+    revalidatePath("/");
+    return {};
+  } catch (e: any) {
+    return { error: e.message || "Erro ao alterar status." };
+  }
+}
+
+export async function toggleFeatured(
+  id: string,
+  isFeatured: boolean
+): Promise<{ error?: string }> {
+  try {
+    await db
+      .update(properties)
+      .set({ isFeatured, updatedAt: new Date() })
+      .where(eq(properties.id, id));
+
+    revalidatePath("/admin/imoveis");
+    revalidatePath("/");
+    return {};
+  } catch (e: any) {
+    return { error: e.message || "Erro ao alterar destaque." };
+  }
 }
 
 // Para popular o formulário de edição
@@ -314,6 +407,12 @@ export type AdminPropertyFull = {
   addressStreet: string | null;
   isFeatured: boolean;
   featuredOrder: number | null;
+  addressNumber: string | null;
+  addressComplement: string | null;
+  addressVisible: boolean;
+  features: string[] | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
   images: { path: string; isCover: boolean; sortOrder: number }[];
 };
 
@@ -362,6 +461,12 @@ export async function findOneForAdmin(id: string): Promise<AdminPropertyFull | n
     addressStreet: row.addressStreet,
     isFeatured: row.isFeatured,
     featuredOrder: row.featuredOrder,
+    addressNumber: row.addressNumber,
+    addressComplement: row.addressComplement,
+    addressVisible: row.addressVisible,
+    features: row.features,
+    metaTitle: row.metaTitle,
+    metaDescription: row.metaDescription,
     images: imgs,
   };
 }
