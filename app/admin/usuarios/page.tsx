@@ -1,12 +1,11 @@
-import { Plus, Edit, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Plus, Edit } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DataTable } from "@/components/admin/data-table";
 import { SearchInput } from "@/components/admin/search-input";
-import { StatusBadge } from "@/components/admin/status-badge";
 import { findAllForAdmin } from "@/server/users/repository";
+import { UserStatusToggle } from "@/components/admin/user-status-toggle";
 
-// Painel nunca serve página em cache: um usuário desativado precisa sumir da
-// lista no mesmo instante, não na próxima revalidação.
 export const dynamic = "force-dynamic";
 
 export default async function UsuariosPage() {
@@ -16,23 +15,20 @@ export default async function UsuariosPage() {
     { key: "name", label: "Nome" },
     { key: "email", label: "E-mail" },
     { key: "phone", label: "Telefone" },
-    { key: "role", label: "Cargo" },
+    { key: "role", label: "Nível" },
     { 
-      key: "status", 
+      key: "isActive", 
       label: "Status",
-      render: (row: any) => <StatusBadge status={row.status} />
+      render: (row: any) => <UserStatusToggle id={row.id} isActive={row.isActive} statusLabel={row.isActive ? "Ativo" : "Inativo"} />
     },
     {
       key: "actions",
       label: "Ações",
-      render: () => (
+      render: (row: any) => (
         <div className="flex items-center gap-3">
-          <button className="text-gray-400 hover:text-kenesis-green">
+          <Link href={`/admin/usuarios/editar/${row.id}`} className="text-gray-400 hover:text-kenesis-green" title="Editar">
             <Edit size={16} />
-          </button>
-          <button className="text-gray-400 hover:text-red-500">
-            <Trash2 size={16} />
-          </button>
+          </Link>
         </div>
       )
     }
@@ -44,10 +40,10 @@ export default async function UsuariosPage() {
         title="Usuários" 
         description="Gerencie os administradores e corretores do sistema."
         action={
-          <button className="flex items-center gap-2 rounded-lg bg-kenesis-green px-4 py-2 text-sm font-medium text-white hover:bg-kenesis-greenDark">
+          <Link href="/admin/usuarios/novo" className="flex items-center gap-2 rounded-lg bg-kenesis-green px-4 py-2 text-sm font-medium text-white hover:bg-kenesis-greenDark">
             <Plus size={16} />
             Novo Usuário
-          </button>
+          </Link>
         }
       />
 
