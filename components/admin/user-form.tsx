@@ -20,19 +20,53 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
   );
 }
 
+const AVAILABLE_PERMISSIONS = [
+  { id: "dashboard.view", label: "Visualizar Dashboard", defaultAdmin: true, defaultBroker: true },
+  
+  { id: "properties.read", label: "Visualizar imóveis", defaultAdmin: true, defaultBroker: true },
+  { id: "properties.create", label: "Cadastrar imóveis", defaultAdmin: true, defaultBroker: true },
+  { id: "properties.update", label: "Editar imóveis", defaultAdmin: true, defaultBroker: true },
+  { id: "properties.delete", label: "Excluir imóveis", defaultAdmin: true, defaultBroker: false },
+  { id: "properties.publish", label: "Publicar imóveis", defaultAdmin: true, defaultBroker: false },
+  
+  { id: "leads.read", label: "Visualizar leads", defaultAdmin: true, defaultBroker: true },
+  { id: "leads.update", label: "Gerenciar leads", defaultAdmin: true, defaultBroker: true },
+  
+  { id: "users.read", label: "Visualizar usuários", defaultAdmin: true, defaultBroker: false },
+  { id: "users.create", label: "Criar usuários", defaultAdmin: true, defaultBroker: false },
+  { id: "users.update", label: "Editar usuários", defaultAdmin: true, defaultBroker: false },
+  { id: "users.deactivate", label: "Desativar usuários", defaultAdmin: true, defaultBroker: false },
+  
+  { id: "testimonials.read", label: "Visualizar depoimentos", defaultAdmin: true, defaultBroker: false },
+  { id: "testimonials.create", label: "Criar depoimentos", defaultAdmin: true, defaultBroker: false },
+  { id: "testimonials.update", label: "Editar depoimentos", defaultAdmin: true, defaultBroker: false },
+  { id: "testimonials.delete", label: "Excluir depoimentos", defaultAdmin: true, defaultBroker: false },
+  
+  { id: "settings.read", label: "Visualizar configurações", defaultAdmin: false, defaultBroker: false },
+  { id: "settings.update", label: "Editar configurações", defaultAdmin: false, defaultBroker: false },
+];
+
 type Props = {
   initialData?: AdminUserDetail | null;
   supabaseUrl: string;
+  currentUser: AdminUserDetail;
 };
 
-export function UserForm({ initialData, supabaseUrl }: Props) {
+import { useState } from "react";
+
+export function UserForm({ initialData, supabaseUrl, currentUser }: Props) {
   const isEdit = !!initialData;
   const router = useRouter();
+  
+  const [role, setRole] = useState<"admin" | "corretor">(initialData?.role || "corretor");
 
   const [state, formAction] = useFormState(
     isEdit ? updateUser : createUser,
     {}
   );
+  
+  const canEditRole = currentUser.role === "admin" && (!isEdit || currentUser.id !== initialData?.id) && !initialData?.isMaster;
+  const canEditStatus = !initialData?.isMaster && currentUser.id !== initialData?.id;
 
   return (
     <form action={formAction} className="grid items-start gap-6 lg:grid-cols-3">
@@ -70,7 +104,9 @@ export function UserForm({ initialData, supabaseUrl }: Props) {
                 className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
                 placeholder="Ex: joao@kenesis.com.br"
                 defaultValue={initialData?.email || ""}
+                disabled={isEdit}
               />
+              {isEdit && <input type="hidden" name="email" value={initialData.email} />}
             </div>
 
             <div>
@@ -81,12 +117,15 @@ export function UserForm({ initialData, supabaseUrl }: Props) {
                 id="role"
                 name="role"
                 required
-                className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green bg-white"
-                defaultValue={initialData?.role || "corretor"}
+                className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green bg-white disabled:bg-gray-100 disabled:text-gray-500"
+                value={role}
+                onChange={(e) => setRole(e.target.value as "admin" | "corretor")}
+                disabled={!canEditRole}
               >
                 <option value="corretor">Corretor (Acesso limitado)</option>
                 <option value="admin">Administrador (Acesso total)</option>
               </select>
+              {!canEditRole && <input type="hidden" name="role" value={role} />}
             </div>
 
             <div>
@@ -103,6 +142,38 @@ export function UserForm({ initialData, supabaseUrl }: Props) {
               />
             </div>
           </div>
+        </AdminCard>
+        
+        <AdminCard className="p-6">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900">Permissões de Acesso</h3>
+          {initialData?.isMaster ? (
+            <div className="rounded-md bg-green-50 p-4 text-sm text-green-800">
+              Este é o <strong>Administrador Master</strong>. Ele possui acesso absoluto e irrevogável a todas as áreas do sistema.
+            </div>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {AVAILABLE_PERMISSIONS.map((perm) => {
+                const isDefault = role === "admin" ? perm.defaultAdmin : perm.defaultBroker;
+                const isChecked = isEdit 
+                  ? initialData.permissions?.includes(perm.id) 
+                  : isDefault;
+                  
+                return (
+                  <label key={perm.id} className="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      name="permissions"
+                      value={perm.id}
+                      defaultChecked={isChecked}
+                      disabled={!currentUser.isMaster && currentUser.role !== "admin"}
+                      className="rounded border-gray-300 text-kenesis-green focus:ring-kenesis-green disabled:opacity-50"
+                    />
+                    {perm.label}
+                  </label>
+                );
+              })}
+            </div>
+          )}
         </AdminCard>
 
         <AdminCard className="p-6">
@@ -188,10 +259,12 @@ export function UserForm({ initialData, supabaseUrl }: Props) {
               <input
                 type="checkbox"
                 name="isActive"
-                className="rounded border-gray-300 text-kenesis-green focus:ring-kenesis-green"
+                className="rounded border-gray-300 text-kenesis-green focus:ring-kenesis-green disabled:opacity-50"
                 defaultChecked={initialData ? initialData.isActive : true}
+                disabled={!canEditStatus}
               />
               Acesso Ativo (Login)
+              {!canEditStatus && <input type="hidden" name="isActive" value="on" />}
             </label>
 
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700">

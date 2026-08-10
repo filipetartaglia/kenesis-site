@@ -21,6 +21,8 @@ export type AdminUserDetail = {
   isPublic: boolean;
   sortOrder: number;
   isActive: boolean;
+  permissions: string[];
+  isMaster: boolean;
 };
 
 export async function getUserById(id: string): Promise<AdminUserDetail | null> {
@@ -44,7 +46,23 @@ export async function getUserById(id: string): Promise<AdminUserDetail | null> {
     .where(eq(users.id, id))
     .limit(1);
 
-  return row as AdminUserDetail || null;
+  if (!row) return null;
+
+  // Import userPermissions if needed (we'll assume it's imported above or we'll add it)
+  // Actually we need to import it at the top of the file.
+  const { userPermissions } = await import("@/db/schema");
+  const perms = await db
+    .select({ permission: userPermissions.permission })
+    .from(userPermissions)
+    .where(eq(userPermissions.userId, id));
+
+  const isMaster = row.email === process.env.MASTER_ADMIN_EMAIL;
+  
+  return {
+    ...row,
+    permissions: perms.map((p) => p.permission),
+    isMaster,
+  } as AdminUserDetail;
 }
 
 export type UserFormState = {
@@ -68,6 +86,15 @@ export async function createUser(
   const isPublic = formData.get("isPublic") === "on";
   const isActive = formData.get("isActive") === "on";
   const sortOrder = parseInt((formData.get("sortOrder") as string) || "0", 10);
+  const permissions = formData.getAll("permissions") as string[];
+
+  // Server-side validation for permissions based on current user
+  const { requireAuth } = await import("@/server/auth");
+  const currentUser = await requireAuth();
+
+  if (role === "admin" && currentUser.role !== "admin") {
+    return { error: "Apenas administradores podem criar outros administradores." };
+  }
 
   if (!name || !email || !role) {
     return { error: "Nome, e-mail e nível de acesso são obrigatórios." };
@@ -77,12 +104,10 @@ export async function createUser(
     const adminAuth = createAdminClient();
     
     // 1. Criar usuário no Supabase Auth
-    // Definimos uma senha provisória aleatória apenas para criação.
-    // O ideal é acionar o fluxo de invite_user do Supabase depois, ou usar signInWithOtp.
     const { data: authData, error: authError } = await adminAuth.auth.admin.createUser({
       email,
       email_confirm: true,
-      password: "TempPassword!" + Math.random().toString(36).substring(2, 10),
+      password: "Mudar123!", // Senha padrão para todos os novos usuários
     });
 
     if (authError) {
@@ -110,6 +135,14 @@ export async function createUser(
       isActive,
       sortOrder,
     });
+
+    // 3. Cadastrar permissões
+    if (permissions.length > 0) {
+      const { userPermissions } = await import("@/db/schema");
+      await db.insert(userPermissions).values(
+        permissions.map((p) => ({ userId: newUserId, permission: p }))
+      );
+    }
 
     revalidatePath("/admin/usuarios");
     revalidatePath("/");
@@ -140,6 +173,26 @@ export async function updateUser(
   const isPublic = formData.get("isPublic") === "on";
   const isActive = formData.get("isActive") === "on";
   const sortOrder = parseInt((formData.get("sortOrder") as string) || "0", 10);
+  const permissions = formData.getAll("permissions") as string[];
+
+  const { requireAuth } = await import("@/server/auth");
+  const currentUser = await requireAuth();
+
+  const targetUser = await getUserById(id);
+  if (!targetUser) return { error: "Usuário não encontrado." };
+
+  // Master rules
+  if (targetUser.isMaster && currentUser.email !== targetUser.email) {
+    return { error: "O Master Admin não pode ser alterado por outros usuários." };
+  }
+  if (targetUser.isMaster && (role !== "admin" || !isActive)) {
+    return { error: "O Master Admin não pode ser rebaixado ou desativado." };
+  }
+
+  // Self rules
+  if (currentUser.id === id && role !== currentUser.role) {
+    return { error: "Você não pode alterar seu próprio nível de acesso." };
+  }
 
   if (!id || !name || !email || !role) {
     return { error: "ID, nome, e-mail e nível de acesso são obrigatórios." };
@@ -164,6 +217,15 @@ export async function updateUser(
         updatedAt: new Date(),
       })
       .where(eq(users.id, id));
+
+    // Update permissions
+    const { userPermissions } = await import("@/db/schema");
+    await db.delete(userPermissions).where(eq(userPermissions.userId, id));
+    if (permissions.length > 0) {
+      await db.insert(userPermissions).values(
+        permissions.map((p) => ({ userId: id, permission: p }))
+      );
+    }
 
     revalidatePath("/admin/usuarios");
     revalidatePath("/");
