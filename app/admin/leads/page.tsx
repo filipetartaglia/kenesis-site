@@ -1,6 +1,7 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DataTable } from "@/components/admin/data-table";
 import { LeadStatusSelect } from "@/components/admin/lead-status-select";
+import { LeadDeleteButton } from "@/components/admin/lead-delete-button";
 import { FilterSelect } from "@/components/admin/filter-select";
 import { findAllLeadsForAdmin } from "@/server/leads/actions";
 import { Eye } from "lucide-react";
@@ -67,9 +68,12 @@ export default async function LeadsPage({
       key: "actions",
       label: "Detalhes",
       render: (row: any) => (
-        <Link href={`/admin/leads/${row.id}`} className="text-gray-400 hover:text-kenesis-green" title="Ver detalhes">
-          <Eye size={16} />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href={`/admin/leads/${row.id}`} className="text-gray-400 hover:text-kenesis-green" title="Ver detalhes">
+            <Eye size={16} />
+          </Link>
+          <LeadDeleteButton id={row.id} />
+        </div>
       )
     }
   ];

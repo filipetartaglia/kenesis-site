@@ -2,11 +2,7 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  // TODO: Reativar proteção quando o login estiver pronto
-  // return await updateSession(request)
-  
-  // Temporariamente desativado para desenvolvimento do painel admin
-  return undefined
+  return await updateSession(request)
 }
 
 export const config = {
