@@ -23,6 +23,7 @@ export type AdminUser = {
   phone: string;
   role: string;
   isActive: boolean;
+  isMaster: boolean;
 };
 
 /** "5521976248282" -> "(21) 97624-8282" */
@@ -93,6 +94,8 @@ export async function findAllForAdmin(): Promise<AdminUser[]> {
     .from(users)
     .orderBy(asc(users.name));
 
+  const masterEmail = process.env.MASTER_ADMIN_EMAIL;
+
   return linhas.map((u) => ({
     id: u.id,
     name: u.name,
@@ -100,5 +103,6 @@ export async function findAllForAdmin(): Promise<AdminUser[]> {
     phone: formatPhone(u.whatsapp),
     role: u.role === "admin" ? "Administrador" : "Corretor",
     isActive: u.isActive,
+    isMaster: u.email === masterEmail,
   }));
 }

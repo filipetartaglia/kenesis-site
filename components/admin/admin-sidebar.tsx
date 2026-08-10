@@ -15,16 +15,19 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Imóveis", href: "/admin/imoveis", icon: Home },
-  { label: "Leads", href: "/admin/leads", icon: Users },
-  { label: "Usuários", href: "/admin/usuarios", icon: UserSquare2 },
-  { label: "Depoimentos", href: "/admin/depoimentos", icon: MessageSquareQuote },
-  { label: "Configurações", href: "/admin/configuracoes", icon: Settings },
-];
+import type { AdminUserDetail } from "@/server/users/actions";
+import { logoutAction } from "@/server/auth/actions";
 
-export function AdminSidebar() {
+const getNavItems = (user: AdminUserDetail) => [
+  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard, show: true },
+  { label: "Imóveis", href: "/admin/imoveis", icon: Home, show: user.isMaster || user.permissions.includes('properties.read') },
+  { label: "Leads", href: "/admin/leads", icon: Users, show: user.isMaster || user.permissions.includes('leads.read') },
+  { label: "Usuários", href: "/admin/usuarios", icon: UserSquare2, show: user.isMaster || user.permissions.includes('users.read') },
+  { label: "Depoimentos", href: "/admin/depoimentos", icon: MessageSquareQuote, show: user.isMaster || user.permissions.includes('testimonials.read') },
+  { label: "Configurações", href: "/admin/configuracoes", icon: Settings, show: user.isMaster || user.permissions.includes('settings.read') },
+].filter(item => item.show);
+
+export function AdminSidebar({ user }: { user: AdminUserDetail }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -59,7 +62,7 @@ export function AdminSidebar() {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {NAV_ITEMS.map((item) => {
+          {getNavItems(user).map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
               <Link
@@ -81,10 +84,12 @@ export function AdminSidebar() {
         </nav>
 
         <div className="border-t border-white/10 p-4">
-          <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white/70 transition-colors hover:bg-white/5 hover:text-red-400">
-            <LogOut size={18} />
-            Sair do sistema
-          </button>
+          <form action={logoutAction}>
+            <button type="submit" className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white/70 transition-colors hover:bg-white/5 hover:text-red-400">
+              <LogOut size={18} />
+              Sair do sistema
+            </button>
+          </form>
         </div>
       </aside>
     </>

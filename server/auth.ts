@@ -37,7 +37,19 @@ export async function getCurrentUser(): Promise<AdminUserDetail | null> {
     return null;
   }
 
-  return dbUser as AdminUserDetail;
+  const { userPermissions } = await import("@/db/schema");
+  const perms = await db
+    .select({ permission: userPermissions.permission })
+    .from(userPermissions)
+    .where(eq(userPermissions.userId, dbUser.id));
+
+  const isMaster = dbUser.email === process.env.MASTER_ADMIN_EMAIL;
+
+  return {
+    ...dbUser,
+    permissions: perms.map((p) => p.permission),
+    isMaster,
+  } as AdminUserDetail;
 }
 
 export async function requireAuth(): Promise<AdminUserDetail> {
@@ -51,6 +63,27 @@ export async function requireAuth(): Promise<AdminUserDetail> {
 export async function requireAdmin(): Promise<AdminUserDetail> {
   const user = await requireAuth();
   if (user.role !== "admin") {
+    redirect("/admin/dashboard");
+  }
+  return user;
+}
+
+export async function requireMaster(): Promise<AdminUserDetail> {
+  const user = await requireAuth();
+  if (!user.isMaster) {
+    redirect("/admin/dashboard");
+  }
+  return user;
+}
+
+export async function requirePermission(permission: string): Promise<AdminUserDetail> {
+  const user = await requireAuth();
+  
+  if (user.isMaster) {
+    return user;
+  }
+  
+  if (!user.permissions.includes(permission)) {
     redirect("/admin/dashboard");
   }
   return user;

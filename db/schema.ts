@@ -106,6 +106,21 @@ export const users = pgTable("users", {
   ...timestamps,
 });
 
+// ---------------------------------------------------------------- user_permissions
+
+export const userPermissions = pgTable(
+  "user_permissions",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    permission: text("permission").notNull(),
+  },
+  (t) => [
+    uniqueIndex("user_permissions_unique_idx").on(t.userId, t.permission),
+  ]
+);
+
 // ---------------------------------------------------------------- properties
 
 export const properties = pgTable(
