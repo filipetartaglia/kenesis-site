@@ -5,6 +5,7 @@ import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type AdminUserDetail = {
   id: string;
@@ -73,7 +74,29 @@ export async function createUser(
   }
 
   try {
+    const adminAuth = createAdminClient();
+    
+    // 1. Criar usuário no Supabase Auth
+    // Definimos uma senha provisória aleatória apenas para criação.
+    // O ideal é acionar o fluxo de invite_user do Supabase depois, ou usar signInWithOtp.
+    const { data: authData, error: authError } = await adminAuth.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      password: "TempPassword!" + Math.random().toString(36).substring(2, 10),
+    });
+
+    if (authError) {
+      if (authError.message.includes("already registered")) {
+        return { error: "Este e-mail já está em uso no sistema." };
+      }
+      return { error: "Erro na autenticação: " + authError.message };
+    }
+
+    const newUserId = authData.user.id;
+
+    // 2. Criar registro correspondente em public.users
     await db.insert(users).values({
+      id: newUserId,
       name,
       email,
       role,

@@ -115,3 +115,14 @@ export async function updateLeadStatus(id: string, status: "novo" | "em_atendime
     return { error: e.message || "Erro ao atualizar status." };
   }
 }
+
+export async function deleteLead(id: string): Promise<{ error?: string }> {
+  try {
+    await db.delete(leads).where(eq(leads.id, id));
+    revalidatePath("/admin/leads");
+    revalidatePath("/admin/dashboard");
+    return {};
+  } catch (e: any) {
+    return { error: e.message || "Erro ao excluir lead." };
+  }
+}
