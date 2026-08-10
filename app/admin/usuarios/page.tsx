@@ -5,6 +5,7 @@ import { DataTable } from "@/components/admin/data-table";
 import { SearchInput } from "@/components/admin/search-input";
 import { findAllForAdmin } from "@/server/users/repository";
 import { UserStatusToggle } from "@/components/admin/user-status-toggle";
+import { UserDeleteButton } from "@/components/admin/user-delete-button";
 import { requirePermission } from "@/server/auth";
 
 export const dynamic = "force-dynamic";
@@ -58,6 +59,9 @@ export default async function UsuariosPage() {
             <Link href={`/admin/usuarios/editar/${row.id}`} className="text-gray-400 hover:text-kenesis-green" title="Editar">
               <Edit size={16} />
             </Link>
+          )}
+          {currentUser.isMaster && !row.isMaster && (
+            <UserDeleteButton id={row.id} userName={row.name} />
           )}
         </div>
       )

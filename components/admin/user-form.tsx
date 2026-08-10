@@ -291,6 +291,25 @@ export function UserForm({ initialData, supabaseUrl, currentUser }: Props) {
                 defaultValue={initialData?.sortOrder ?? 0}
               />
             </div>
+            
+            {isEdit && currentUser.isMaster && !initialData?.isMaster && (
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <label htmlFor="overridePassword" className="mb-1 block text-sm font-medium text-red-600">
+                  Forçar Nova Senha (Opcional)
+                </label>
+                <input
+                  id="overridePassword"
+                  name="overridePassword"
+                  type="text"
+                  minLength={6}
+                  className="w-full rounded-md border border-red-300 p-2 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  placeholder="Deixe em branco para não alterar"
+                />
+                <p className="mt-1 text-[10px] text-gray-500">
+                  Apenas o Master pode forçar a troca de senha de outro usuário sem precisar da senha atual.
+                </p>
+              </div>
+            )}
           </div>
         </AdminCard>
 
