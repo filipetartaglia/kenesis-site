@@ -2,7 +2,7 @@
 
 import { Bell, Search, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { AdminUserDetail } from "@/server/users/actions";
+import type { AdminUserDetail } from "@/server/users/actions";
 import { logoutAction } from "@/server/auth/actions";
 import Image from "next/image";
 
