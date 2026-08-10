@@ -174,6 +174,7 @@ export async function updateUser(
   const isActive = formData.get("isActive") === "on";
   const sortOrder = parseInt((formData.get("sortOrder") as string) || "0", 10);
   const permissions = formData.getAll("permissions") as string[];
+  const overridePassword = formData.get("overridePassword") as string | null;
 
   const { requireAuth } = await import("@/server/auth");
   const currentUser = await requireAuth();
@@ -226,6 +227,20 @@ export async function updateUser(
         permissions.map((p) => ({ userId: id, permission: p }))
       );
     }
+    
+    // Override password
+    if (overridePassword && currentUser.isMaster) {
+      if (overridePassword.length < 6) {
+        return { error: "A nova senha deve ter pelo menos 6 caracteres." };
+      }
+      const adminAuth = createAdminClient();
+      const { error: authError } = await adminAuth.auth.admin.updateUserById(id, {
+        password: overridePassword
+      });
+      if (authError) {
+        return { error: "Erro ao forçar redefinição de senha: " + authError.message };
+      }
+    }
 
     revalidatePath("/admin/usuarios");
     revalidatePath("/");
@@ -253,5 +268,43 @@ export async function toggleUserActive(
     return {};
   } catch (e: any) {
     return { error: e.message || "Erro ao atualizar status do usuário." };
+  }
+}
+
+export async function deleteUser(id: string): Promise<{ error?: string }> {
+  const { requireAuth } = await import("@/server/auth");
+  const currentUser = await requireAuth();
+
+  if (!currentUser.isMaster) {
+    return { error: "Apenas o Master Admin pode excluir usuários." };
+  }
+
+  const targetUser = await getUserById(id);
+  if (!targetUser) return { error: "Usuário não encontrado." };
+
+  if (targetUser.isMaster) {
+    return { error: "O Master Admin não pode ser excluído." };
+  }
+
+  try {
+    const adminAuth = createAdminClient();
+
+    // 1. Apagar no Supabase Auth (Se der erro aqui, a gente aborta)
+    const { error: authError } = await adminAuth.auth.admin.deleteUser(id);
+    if (authError) {
+      return { error: "Erro ao excluir identidade no Supabase Auth: " + authError.message };
+    }
+
+    // 2. Apagar no banco de dados (Drizzle)
+    await db.delete(users).where(eq(users.id, id));
+
+    revalidatePath("/admin/usuarios");
+    revalidatePath("/");
+    return {};
+  } catch (e: any) {
+    if (e.code === '23503') { // foreign_key_violation
+      return { error: "Este usuário possui imóveis ou leads vinculados a ele. Não é possível excluí-lo permanentemente, por favor apenas desative-o." };
+    }
+    return { error: e.message || "Erro ao excluir o usuário." };
   }
 }
