@@ -66,10 +66,10 @@ export default async function LeadsPage({
     {
       key: "actions",
       label: "Detalhes",
-      render: () => (
-        <button className="text-gray-400 hover:text-kenesis-green" title="Em breve">
+      render: (row: any) => (
+        <Link href={`/admin/leads/${row.id}`} className="text-gray-400 hover:text-kenesis-green" title="Ver detalhes">
           <Eye size={16} />
-        </button>
+        </Link>
       )
     }
   ];

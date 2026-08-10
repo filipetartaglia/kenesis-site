@@ -22,17 +22,10 @@ export function PropertyDetail({ property, similar }: { property: Property; simi
 
   async function handleDirectWhatsApp() {
     setIsDirectLoading(true);
-    // Salva um lead "anônimo" para registro
-    await createLead({
-      name: "Contato Direto (WhatsApp)",
-      phone: "Não informado",
-      propertyId: property.id,
-    });
-    setIsDirectLoading(false);
-    
     const text = `Olá, tenho interesse no imóvel: ${property.title}.`;
     const whatsappUrl = `https://wa.me/${siteConfig.whatsapp}?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, "_blank");
+    setIsDirectLoading(false);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {

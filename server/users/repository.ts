@@ -22,7 +22,7 @@ export type AdminUser = {
   email: string;
   phone: string;
   role: string;
-  status: string;
+  isActive: boolean;
 };
 
 /** "5521976248282" -> "(21) 97624-8282" */
@@ -99,6 +99,6 @@ export async function findAllForAdmin(): Promise<AdminUser[]> {
     email: u.email,
     phone: formatPhone(u.whatsapp),
     role: u.role === "admin" ? "Administrador" : "Corretor",
-    status: u.isActive ? "Ativo" : "Inativo",
+    isActive: u.isActive,
   }));
 }

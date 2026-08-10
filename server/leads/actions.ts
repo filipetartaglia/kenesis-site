@@ -84,6 +84,27 @@ export async function findAllLeadsForAdmin(filters?: AdminFilters): Promise<Admi
   return rows as AdminLead[];
 }
 
+export async function getLeadById(id: string): Promise<AdminLead | null> {
+  const [row] = await db
+    .select({
+      id: leads.id,
+      name: leads.name,
+      email: leads.email,
+      phone: leads.phone,
+      message: leads.message,
+      status: leads.status,
+      createdAt: leads.createdAt,
+      propertyTitle: properties.title,
+      propertySlug: properties.slug,
+    })
+    .from(leads)
+    .leftJoin(properties, eq(leads.propertyId, properties.id))
+    .where(eq(leads.id, id))
+    .limit(1);
+
+  return (row as AdminLead) || null;
+}
+
 export async function updateLeadStatus(id: string, status: "novo" | "em_atendimento" | "convertido" | "perdido"): Promise<{ error?: string }> {
   try {
     await db.update(leads).set({ status, updatedAt: new Date() }).where(eq(leads.id, id));
