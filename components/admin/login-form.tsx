@@ -1,12 +1,30 @@
 "use client";
 
-import { useActionState } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 import { loginAction } from "@/server/auth/actions";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex w-full justify-center rounded-md bg-kenesis-green px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-kenesis-green/90 focus:outline-none focus:ring-2 focus:ring-kenesis-green focus:ring-offset-2 disabled:opacity-70 transition-all"
+    >
+      {pending ? (
+        <Loader2 className="animate-spin" size={20} />
+      ) : (
+        "Entrar no Painel"
+      )}
+    </button>
+  );
+}
+
 export function LoginForm() {
-  const [state, formAction, isPending] = useActionState(loginAction, undefined);
+  const [state, formAction] = useFormState(loginAction, undefined);
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -62,17 +80,7 @@ export function LoginForm() {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className="flex w-full justify-center rounded-md bg-kenesis-green px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-kenesis-green/90 focus:outline-none focus:ring-2 focus:ring-kenesis-green focus:ring-offset-2 disabled:opacity-70 transition-all"
-        >
-          {isPending ? (
-            <Loader2 className="animate-spin" size={20} />
-          ) : (
-            "Entrar no Painel"
-          )}
-        </button>
+        <SubmitButton />
       </form>
     </div>
   );
