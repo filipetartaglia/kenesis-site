@@ -1,6 +1,7 @@
 import { db } from "@/db/client";
 import { properties, propertyImages, propertySlugHistory } from "@/db/schema";
 import type { Property } from "@/types";
+import { storageUrl } from "@/lib/supabase/storage";
 import { and, asc, desc, eq, inArray, isNotNull, ne, sql } from "drizzle-orm";
 
 export const TODOS = "Todos";
@@ -25,21 +26,8 @@ function formatTag(type: string | null, segment: string | null): string {
   return capitalize(type ?? "");
 }
 
-// Resolve o path da imagem para uma URL acessível.
-// Paths locais (ex: /imoveis/mansao-jardim-uba/01.webp) são retornados como estão.
-// Paths do Supabase Storage (ex: mansao-jardim-uba/123-abc.webp) recebem a URL base.
 export function getImageUrl(path: string | null): string {
-  if (!path) return "/placeholder-image.jpg";
-  // Se já é um path absoluto local, retorna direto
-  if (path.startsWith("/")) return path;
-  // Se já é uma URL completa, retorna direto
-  if (path.startsWith("http")) return path;
-  // Caso contrário, é um path do Supabase Storage
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (supabaseUrl) {
-    return `${supabaseUrl}/storage/v1/object/public/properties/${path}`;
-  }
-  return path;
+  return storageUrl("properties", path) ?? "/placeholder-image.jpg";
 }
 
 // Mapper from DB to Frontend Property

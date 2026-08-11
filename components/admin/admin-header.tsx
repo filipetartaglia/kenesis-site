@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { AdminUserDetail } from "@/server/users/actions";
 import { logoutAction } from "@/server/auth/actions";
 import Image from "next/image";
+import { storageUrl } from "@/lib/supabase/storage";
 
 export function AdminHeader({ user }: { user?: AdminUserDetail }) {
   const pathname = usePathname();
@@ -43,7 +44,7 @@ export function AdminHeader({ user }: { user?: AdminUserDetail }) {
           <Link href="/admin/perfil" className="flex items-center gap-3 group hover:opacity-80 transition-opacity">
             {user?.photoPath ? (
               <div className="relative h-8 w-8 overflow-hidden rounded-full">
-                <Image src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/team/${user.photoPath}`} alt={user.name} fill className="object-cover" />
+                <Image src={storageUrl("team", user.photoPath)!} alt={user.name} fill className="object-cover" />
               </div>
             ) : (
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-kenesis-green text-sm font-medium text-white group-hover:bg-kenesis-greenDark transition-colors">

@@ -47,7 +47,7 @@ async function createMasterAdmin() {
     userId = authData.user.id;
   } else {
     const { data: { users: allUsers } } = await supabase.auth.admin.listUsers();
-    const existing = allUsers.find(u => u.email === email);
+    const existing = allUsers.find((u: { id: string; email?: string }) => u.email === email);
     userId = existing?.id;
   }
 
