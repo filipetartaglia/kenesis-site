@@ -116,6 +116,9 @@ export async function createProperty(
   _prevState: PropertyFormState,
   formData: FormData
 ): Promise<PropertyFormState> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("properties.create");
+
   const data = extractFormData(formData);
 
   if (!data.title || !data.slug || !data.propertyType) {
@@ -176,6 +179,9 @@ export async function updateProperty(
   if (!id) return { error: "ID do imóvel não informado." };
 
   const data = extractFormData(formData);
+
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("properties.update");
 
   if (!data.title || !data.slug || !data.propertyType) {
     return { error: "Título, slug e tipo do imóvel são obrigatórios." };
@@ -251,6 +257,9 @@ export async function updateProperty(
 }
 
 export async function deleteProperty(id: string): Promise<{ error?: string }> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("properties.delete");
+
   try {
     await db.delete(properties).where(eq(properties.id, id));
 
@@ -334,6 +343,9 @@ export async function togglePropertyStatus(
   id: string,
   newStatus: "publicado" | "arquivado"
 ): Promise<{ error?: string }> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("properties.publish");
+
   try {
     const updates: Record<string, any> = {
       status: newStatus,
@@ -366,6 +378,9 @@ export async function toggleFeatured(
   id: string,
   isFeatured: boolean
 ): Promise<{ error?: string }> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("properties.update");
+
   try {
     await db
       .update(properties)

@@ -8,6 +8,7 @@ import { PropertyFeaturedToggle } from "@/components/admin/property-featured-tog
 import { FilterSelect } from "@/components/admin/filter-select";
 import { findAllForAdmin } from "@/server/properties/actions";
 import { getImageUrl } from "@/server/properties/repository";
+import { requirePermission } from "@/server/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,7 @@ export default async function ImoveisPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string; tipo?: string }>;
 }) {
+  await requirePermission("properties.read");
   const params = await searchParams;
   const filters = {
     search: params.q || undefined,

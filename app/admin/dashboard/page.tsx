@@ -7,11 +7,13 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { LeadStatusSelect } from "@/components/admin/lead-status-select";
 import { findAllForAdmin } from "@/server/properties/actions";
 import { findAllLeadsForAdmin } from "@/server/leads/actions";
+import { requireAuth } from "@/server/auth";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
+  await requireAuth();
   const [properties, leads] = await Promise.all([
     findAllForAdmin(),
     findAllLeadsForAdmin(),

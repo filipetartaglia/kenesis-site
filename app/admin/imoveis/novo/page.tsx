@@ -2,8 +2,12 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { PropertyForm } from "@/components/admin/property-form";
+import { requirePermission } from "@/server/auth";
 
-export default function NovoImovelPage() {
+export const dynamic = "force-dynamic";
+
+export default async function NovoImovelPage() {
+  await requirePermission("properties.create");
   return (
     <div className="space-y-6">
       <Link href="/admin/imoveis" className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900">

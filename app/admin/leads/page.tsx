@@ -4,6 +4,7 @@ import { LeadStatusSelect } from "@/components/admin/lead-status-select";
 import { LeadDeleteButton } from "@/components/admin/lead-delete-button";
 import { FilterSelect } from "@/components/admin/filter-select";
 import { findAllLeadsForAdmin } from "@/server/leads/actions";
+import { requirePermission } from "@/server/auth";
 import { Eye } from "lucide-react";
 import Link from "next/link";
 
@@ -22,6 +23,7 @@ export default async function LeadsPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
+  await requirePermission("leads.read");
   const params = await searchParams;
   const filters = {
     search: params.q || undefined,

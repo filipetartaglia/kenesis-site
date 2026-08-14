@@ -74,6 +74,10 @@ export async function createUser(
   _prevState: UserFormState,
   formData: FormData
 ): Promise<UserFormState> {
+  // Server-side authorization
+  const { requirePermission } = await import("@/server/auth");
+  const currentUser = await requirePermission("users.create");
+
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const role = formData.get("role") as "admin" | "corretor";
@@ -88,12 +92,14 @@ export async function createUser(
   const sortOrder = parseInt((formData.get("sortOrder") as string) || "0", 10);
   const permissions = formData.getAll("permissions") as string[];
 
-  // Server-side validation for permissions based on current user
-  const { requireAuth } = await import("@/server/auth");
-  const currentUser = await requireAuth();
-
-  if (role === "admin" && currentUser.role !== "admin") {
+  // Only admin/master can create other admins
+  if (role === "admin" && !currentUser.isMaster && currentUser.role !== "admin") {
     return { error: "Apenas administradores podem criar outros administradores." };
+  }
+
+  // Only master can set permissions
+  if (permissions.length > 0 && !currentUser.isMaster && !currentUser.permissions.includes("users.update")) {
+    return { error: "Você não tem permissão para definir permissões de outros usuários." };
   }
 
   if (!name || !email || !role) {
@@ -103,21 +109,20 @@ export async function createUser(
   try {
     const adminAuth = createAdminClient();
     
-    // 1. Criar usuário no Supabase Auth
-    const { data: authData, error: authError } = await adminAuth.auth.admin.createUser({
-      email,
-      email_confirm: true,
-      password: "Mudar123!", // Senha padrão para todos os novos usuários
+    // 1. Convidar o usuário via Supabase Auth — envia magic link para definição de senha.
+    // NÃO usa senha hardcoded.
+    const { data: inviteData, error: inviteError } = await adminAuth.auth.admin.inviteUserByEmail(email, {
+      data: { name, role },
     });
 
-    if (authError) {
-      if (authError.message.includes("already registered")) {
+    if (inviteError) {
+      if (inviteError.message.includes("already registered") || inviteError.message.includes("already been registered")) {
         return { error: "Este e-mail já está em uso no sistema." };
       }
-      return { error: "Erro na autenticação: " + authError.message };
+      return { error: "Erro ao convidar usuário: " + inviteError.message };
     }
 
-    const newUserId = authData.user.id;
+    const newUserId = inviteData.user.id;
 
     // 2. Criar registro correspondente em public.users
     await db.insert(users).values({
@@ -160,6 +165,10 @@ export async function updateUser(
   _prevState: UserFormState,
   formData: FormData
 ): Promise<UserFormState> {
+  // Server-side authorization
+  const { requirePermission } = await import("@/server/auth");
+  const currentUser = await requirePermission("users.update");
+
   const id = formData.get("id") as string;
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -176,23 +185,28 @@ export async function updateUser(
   const permissions = formData.getAll("permissions") as string[];
   const overridePassword = formData.get("overridePassword") as string | null;
 
-  const { requireAuth } = await import("@/server/auth");
-  const currentUser = await requireAuth();
-
   const targetUser = await getUserById(id);
   if (!targetUser) return { error: "Usuário não encontrado." };
 
-  // Master rules
-  if (targetUser.isMaster && currentUser.email !== targetUser.email) {
+  // Master protection rules
+  if (targetUser.isMaster && !currentUser.isMaster) {
     return { error: "O Master Admin não pode ser alterado por outros usuários." };
   }
   if (targetUser.isMaster && (role !== "admin" || !isActive)) {
     return { error: "O Master Admin não pode ser rebaixado ou desativado." };
   }
 
-  // Self rules
+  // Self rules — cannot change own role or deactivate self
   if (currentUser.id === id && role !== currentUser.role) {
     return { error: "Você não pode alterar seu próprio nível de acesso." };
+  }
+  if (currentUser.id === id && !isActive) {
+    return { error: "Você não pode desativar a si mesmo." };
+  }
+
+  // Non-admin cannot promote to admin
+  if (role === "admin" && targetUser.role !== "admin" && !currentUser.isMaster && currentUser.role !== "admin") {
+    return { error: "Apenas administradores podem promover outros a administrador." };
   }
 
   if (!id || !name || !email || !role) {
@@ -219,17 +233,21 @@ export async function updateUser(
       })
       .where(eq(users.id, id));
 
-    // Update permissions
-    const { userPermissions } = await import("@/db/schema");
-    await db.delete(userPermissions).where(eq(userPermissions.userId, id));
-    if (permissions.length > 0) {
-      await db.insert(userPermissions).values(
-        permissions.map((p) => ({ userId: id, permission: p }))
-      );
+    // Update permissions — only Master can freely alter permissions;
+    // admins can only set permissions if they have users.update.
+    // Master permissions are never modified through the UI.
+    if (!targetUser.isMaster) {
+      const { userPermissions } = await import("@/db/schema");
+      await db.delete(userPermissions).where(eq(userPermissions.userId, id));
+      if (permissions.length > 0) {
+        await db.insert(userPermissions).values(
+          permissions.map((p) => ({ userId: id, permission: p }))
+        );
+      }
     }
     
-    // Override password
-    if (overridePassword && currentUser.isMaster) {
+    // Override password — master only
+    if (overridePassword && currentUser.isMaster && !targetUser.isMaster) {
       if (overridePassword.length < 6) {
         return { error: "A nova senha deve ter pelo menos 6 caracteres." };
       }
@@ -258,6 +276,22 @@ export async function toggleUserActive(
   id: string,
   isActive: boolean
 ): Promise<{ error?: string }> {
+  // Server-side authorization
+  const { requirePermission } = await import("@/server/auth");
+  const currentUser = await requirePermission("users.deactivate");
+
+  // Cannot toggle self
+  if (currentUser.id === id) {
+    return { error: "Você não pode alterar seu próprio status." };
+  }
+
+  // Cannot toggle Master
+  const targetUser = await getUserById(id);
+  if (!targetUser) return { error: "Usuário não encontrado." };
+  if (targetUser.isMaster) {
+    return { error: "O Master Admin não pode ser desativado." };
+  }
+
   try {
     await db
       .update(users)
@@ -272,12 +306,8 @@ export async function toggleUserActive(
 }
 
 export async function deleteUser(id: string): Promise<{ error?: string }> {
-  const { requireAuth } = await import("@/server/auth");
-  const currentUser = await requireAuth();
-
-  if (!currentUser.isMaster) {
-    return { error: "Apenas o Master Admin pode excluir usuários." };
-  }
+  const { requireMaster } = await import("@/server/auth");
+  const currentUser = await requireMaster();
 
   const targetUser = await getUserById(id);
   if (!targetUser) return { error: "Usuário não encontrado." };

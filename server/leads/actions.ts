@@ -106,6 +106,9 @@ export async function getLeadById(id: string): Promise<AdminLead | null> {
 }
 
 export async function updateLeadStatus(id: string, status: "novo" | "em_atendimento" | "convertido" | "perdido"): Promise<{ error?: string }> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("leads.update");
+
   try {
     await db.update(leads).set({ status, updatedAt: new Date() }).where(eq(leads.id, id));
     revalidatePath("/admin/leads");
@@ -117,6 +120,9 @@ export async function updateLeadStatus(id: string, status: "novo" | "em_atendime
 }
 
 export async function deleteLead(id: string): Promise<{ error?: string }> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("leads.update");
+
   try {
     await db.delete(leads).where(eq(leads.id, id));
     revalidatePath("/admin/leads");
