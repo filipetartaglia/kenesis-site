@@ -141,6 +141,23 @@ export function UserForm({ initialData, supabaseUrl, currentUser }: Props) {
                 defaultValue={initialData?.whatsapp || ""}
               />
             </div>
+            
+            {!isEdit && (
+              <div>
+                <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+                  Senha Inicial *
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="text"
+                  required
+                  minLength={6}
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
+                  placeholder="Mínimo de 6 caracteres"
+                />
+              </div>
+            )}
           </div>
         </AdminCard>
         

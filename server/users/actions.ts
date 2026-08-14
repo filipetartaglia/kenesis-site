@@ -91,6 +91,7 @@ export async function createUser(
   const isActive = formData.get("isActive") === "on";
   const sortOrder = parseInt((formData.get("sortOrder") as string) || "0", 10);
   const permissions = formData.getAll("permissions") as string[];
+  const password = formData.get("password") as string;
 
   // Only admin/master can create other admins
   if (role === "admin" && !currentUser.isMaster && currentUser.role !== "admin") {
@@ -102,27 +103,33 @@ export async function createUser(
     return { error: "Você não tem permissão para definir permissões de outros usuários." };
   }
 
-  if (!name || !email || !role) {
-    return { error: "Nome, e-mail e nível de acesso são obrigatórios." };
+  if (!name || !email || !role || !password) {
+    return { error: "Nome, e-mail, senha e nível de acesso são obrigatórios." };
+  }
+
+  if (password.length < 6) {
+    return { error: "A senha inicial deve ter pelo menos 6 caracteres." };
   }
 
   try {
     const adminAuth = createAdminClient();
     
-    // 1. Convidar o usuário via Supabase Auth — envia magic link para definição de senha.
-    // NÃO usa senha hardcoded.
-    const { data: inviteData, error: inviteError } = await adminAuth.auth.admin.inviteUserByEmail(email, {
-      data: { name, role },
+    // 1. Criar o usuário no Supabase Auth com a senha informada
+    const { data: authData, error: authError } = await adminAuth.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { name, role },
     });
 
-    if (inviteError) {
-      if (inviteError.message.includes("already registered") || inviteError.message.includes("already been registered")) {
+    if (authError) {
+      if (authError.message.includes("already registered") || authError.message.includes("already been registered")) {
         return { error: "Este e-mail já está em uso no sistema." };
       }
-      return { error: "Erro ao convidar usuário: " + inviteError.message };
+      return { error: "Erro ao criar usuário na autenticação: " + authError.message };
     }
 
-    const newUserId = inviteData.user.id;
+    const newUserId = authData.user.id;
 
     // 2. Criar registro correspondente em public.users
     await db.insert(users).values({
