@@ -160,9 +160,7 @@ export async function createProperty(
       );
     }
 
-    revalidatePath("/admin/imoveis");
-    revalidatePath("/imoveis");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
   } catch (e: any) {
     console.error("Erro ao criar imóvel:", e);
     return { error: e.message || "Erro interno ao criar o imóvel." };
@@ -244,10 +242,7 @@ export async function updateProperty(
       );
     }
 
-    revalidatePath("/admin/imoveis");
-    revalidatePath(`/imoveis/${data.slug}`);
-    revalidatePath("/imoveis");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
   } catch (e: any) {
     console.error("Erro ao atualizar imóvel:", e);
     return { error: e.message || "Erro interno ao atualizar o imóvel." };
@@ -263,9 +258,7 @@ export async function deleteProperty(id: string): Promise<{ error?: string }> {
   try {
     await db.delete(properties).where(eq(properties.id, id));
 
-    revalidatePath("/admin/imoveis");
-    revalidatePath("/imoveis");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
 
     return {};
   } catch (e: any) {
@@ -365,9 +358,7 @@ export async function togglePropertyStatus(
 
     await db.update(properties).set(updates).where(eq(properties.id, id));
 
-    revalidatePath("/admin/imoveis");
-    revalidatePath("/imoveis");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return {};
   } catch (e: any) {
     return { error: e.message || "Erro ao alterar status." };
@@ -387,8 +378,7 @@ export async function toggleFeatured(
       .set({ isFeatured, updatedAt: new Date() })
       .where(eq(properties.id, id));
 
-    revalidatePath("/admin/imoveis");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return {};
   } catch (e: any) {
     return { error: e.message || "Erro ao alterar destaque." };

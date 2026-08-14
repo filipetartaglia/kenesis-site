@@ -304,8 +304,7 @@ export async function toggleUserActive(
       .update(users)
       .set({ isActive, updatedAt: new Date() })
       .where(eq(users.id, id));
-    revalidatePath("/admin/usuarios");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return {};
   } catch (e: any) {
     return { error: e.message || "Erro ao atualizar status do usuário." };
@@ -335,8 +334,7 @@ export async function deleteUser(id: string): Promise<{ error?: string }> {
     // 2. Apagar no banco de dados (Drizzle)
     await db.delete(users).where(eq(users.id, id));
 
-    revalidatePath("/admin/usuarios");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return {};
   } catch (e: any) {
     if (e.code === '23503') { // foreign_key_violation
