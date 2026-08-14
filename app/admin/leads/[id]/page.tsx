@@ -2,6 +2,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminCard } from "@/components/admin/admin-card";
 import { LeadStatusSelect } from "@/components/admin/lead-status-select";
 import { getLeadById } from "@/server/leads/actions";
+import { requirePermission } from "@/server/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Calendar, Mail, Phone, Home, MessageSquare } from "lucide-react";
@@ -9,6 +10,7 @@ import { Calendar, Mail, Phone, Home, MessageSquare } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function LeadDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePermission("leads.read");
   const { id } = await params;
   const lead = await getLeadById(id);
 

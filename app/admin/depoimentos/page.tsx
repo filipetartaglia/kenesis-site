@@ -6,10 +6,12 @@ import { findAllTestimonialsForAdmin } from "@/server/testimonials/actions";
 import { TestimonialStatusToggle } from "@/components/admin/testimonial-status-toggle";
 import { DeleteTestimonialButton } from "@/components/admin/delete-testimonial-button";
 import { getTestimonialImageUrl } from "@/server/testimonials/repository";
+import { requirePermission } from "@/server/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function DepoimentosPage() {
+  await requirePermission("testimonials.read");
   const testimonials = await findAllTestimonialsForAdmin();
 
   const columns = [

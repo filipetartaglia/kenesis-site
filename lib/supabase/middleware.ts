@@ -45,7 +45,7 @@ export async function updateSession(request: NextRequest) {
   // Se JÁ estiver logado e tentar acessar o /admin/login, manda pro dashboard
   if (isAuthRoute && user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/admin/imoveis'
+    url.pathname = '/admin/dashboard'
     return NextResponse.redirect(url)
   }
 

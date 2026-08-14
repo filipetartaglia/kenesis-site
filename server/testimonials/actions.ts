@@ -45,6 +45,9 @@ export async function createTestimonial(
   _prevState: TestimonialFormState,
   formData: FormData
 ): Promise<TestimonialFormState> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("testimonials.create");
+
   const authorName = formData.get("authorName") as string;
   const authorRole = formData.get("authorRole") as string | null;
   const quote = formData.get("quote") as string;
@@ -79,6 +82,9 @@ export async function updateTestimonial(
   _prevState: TestimonialFormState,
   formData: FormData
 ): Promise<TestimonialFormState> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("testimonials.update");
+
   const id = formData.get("id") as string;
   const authorName = formData.get("authorName") as string;
   const authorRole = formData.get("authorRole") as string | null;
@@ -115,6 +121,9 @@ export async function updateTestimonial(
 }
 
 export async function deleteTestimonial(id: string): Promise<{ error?: string }> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("testimonials.delete");
+
   try {
     await db.delete(testimonials).where(eq(testimonials.id, id));
     revalidatePath("/admin/depoimentos");
@@ -129,6 +138,9 @@ export async function toggleTestimonialPublished(
   id: string,
   isPublished: boolean
 ): Promise<{ error?: string }> {
+  const { requirePermission } = await import("@/server/auth");
+  await requirePermission("testimonials.update");
+
   try {
     await db
       .update(testimonials)

@@ -4,8 +4,12 @@ import { notFound } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { PropertyForm } from "@/components/admin/property-form";
 import { findOneForAdmin } from "@/server/properties/actions";
+import { requirePermission } from "@/server/auth";
+
+export const dynamic = "force-dynamic";
 
 export default async function EditarImovelPage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePermission("properties.update");
   const { id } = await params;
   const property = await findOneForAdmin(id);
 

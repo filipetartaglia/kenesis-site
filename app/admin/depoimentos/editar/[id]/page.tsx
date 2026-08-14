@@ -1,11 +1,13 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { TestimonialForm } from "@/components/admin/testimonial-form";
 import { getTestimonialById } from "@/server/testimonials/actions";
+import { requirePermission } from "@/server/auth";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditarDepoimentoPage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePermission("testimonials.update");
   const { id } = await params;
   const testimonial = await getTestimonialById(id);
 

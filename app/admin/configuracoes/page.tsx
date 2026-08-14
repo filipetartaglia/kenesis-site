@@ -1,9 +1,12 @@
-"use client";
-
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminCard } from "@/components/admin/admin-card";
+import { requirePermission } from "@/server/auth";
 
-export default function ConfiguracoesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ConfiguracoesPage() {
+  await requirePermission("settings.read");
+
   return (
     <div className="space-y-6">
       <AdminPageHeader 
@@ -11,7 +14,7 @@ export default function ConfiguracoesPage() {
         description="Gerencie as informações de contato e redes sociais públicas da imobiliária."
       />
 
-      <form className="max-w-4xl space-y-6" onSubmit={(e) => e.preventDefault()}>
+      <form className="max-w-4xl space-y-6" onSubmit={undefined}>
         <AdminCard className="p-6">
           <h3 className="mb-4 text-sm font-semibold text-gray-900">Informações de Contato</h3>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -67,9 +70,9 @@ export default function ConfiguracoesPage() {
         </AdminCard>
 
         <div className="flex justify-end">
-          <button type="button" className="rounded-lg bg-kenesis-green px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-kenesis-greenDark">
-            Salvar Configurações
-          </button>
+          <div className="rounded-md bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800">
+            Funcionalidade de persistência será implementada em fase futura.
+          </div>
         </div>
       </form>
     </div>
