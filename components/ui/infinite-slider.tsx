@@ -48,11 +48,11 @@ export function InfiniteSlider({
   const size = isHorizontal ? width : height;
   const animSize = size + gap; // one "lap" = one set + one gap
 
-  const keyframes = reverse
-    ? `@keyframes kenesis-slider-rev { from { transform: translate${isHorizontal ? 'X' : 'Y'}(0); } to { transform: translate${isHorizontal ? 'X' : 'Y'}(${animSize}px); } }`
-    : `@keyframes kenesis-slider { from { transform: translate${isHorizontal ? 'X' : 'Y'}(0); } to { transform: translate${isHorizontal ? 'X' : 'Y'}(-${animSize}px); } }`;
+  const animName = reverse ? `kenesis-slider-rev-${animSize}` : `kenesis-slider-${animSize}`;
 
-  const animName = reverse ? 'kenesis-slider-rev' : 'kenesis-slider';
+  const keyframes = reverse
+    ? `@keyframes ${animName} { from { transform: translate${isHorizontal ? 'X' : 'Y'}(0); } to { transform: translate${isHorizontal ? 'X' : 'Y'}(${animSize}px); } }`
+    : `@keyframes ${animName} { from { transform: translate${isHorizontal ? 'X' : 'Y'}(0); } to { transform: translate${isHorizontal ? 'X' : 'Y'}(-${animSize}px); } }`;
 
   const trackStyle: React.CSSProperties = {
     display: 'flex',

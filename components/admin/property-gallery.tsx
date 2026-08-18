@@ -28,11 +28,28 @@ function isLocalPath(path: string): boolean {
   return path.startsWith("/") && !path.startsWith("//");
 }
 
+let cachedWatermark: HTMLImageElement | null = null;
+async function getWatermark(): Promise<HTMLImageElement> {
+  if (cachedWatermark) return cachedWatermark;
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      cachedWatermark = img;
+      resolve(img);
+    };
+    img.onerror = reject;
+    img.src = "/logo-watermark.png";
+  });
+}
+
 /**
  * Aplica a marca d'água da Kenesis à imagem via Canvas antes de enviar.
- * Retorna um novo Blob com a logo centralizada e opaca.
+ * Usa a imagem da logo com opacidade reduzida.
  */
 async function applyWatermark(file: File): Promise<Blob> {
+  const watermark = await getWatermark().catch(() => null);
+
   return new Promise((resolve) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -46,27 +63,22 @@ async function applyWatermark(file: File): Promise<Blob> {
       // Desenha a imagem original
       ctx.drawImage(img, 0, 0);
 
-      // Marca d'água: texto "KENESIS" centralizado
-      const fontSize = Math.max(32, Math.round(canvas.width * 0.045));
-      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
+      if (watermark) {
+        // Marca d'água: imagem no centro
+        ctx.globalAlpha = 0.45; // ~45% de opacidade
 
-      // Sombra leve para legibilidade em fundos claros e escuros
-      ctx.shadowColor = "rgba(0,0,0,0.4)";
-      ctx.shadowBlur = 8;
+        // Largura da marca: 30% da largura da imagem original, limitada a um tamanho max/min razoável
+        let wmWidth = canvas.width * 0.3;
+        const wmHeight = (watermark.naturalHeight / watermark.naturalWidth) * wmWidth;
 
-      // Texto com opacidade ~35% (visível mas não intrusivo)
-      ctx.globalAlpha = 0.35;
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillText("KENESIS IMOBILIÁRIA", canvas.width / 2, canvas.height / 2);
+        // Centraliza
+        const wmX = (canvas.width - wmWidth) / 2;
+        const wmY = (canvas.height - wmHeight) / 2;
 
-      // Segunda passagem levemente deslocada (efeito de profundidade)
-      ctx.globalAlpha = 0.15;
-      ctx.fillStyle = "#a1ba1f";
-      ctx.fillText("KENESIS IMOBILIÁRIA", canvas.width / 2 + 2, canvas.height / 2 + 2);
+        ctx.drawImage(watermark, wmX, wmY, wmWidth, wmHeight);
+        ctx.globalAlpha = 1;
+      }
 
-      ctx.globalAlpha = 1;
       URL.revokeObjectURL(url);
 
       canvas.toBlob((blob) => {
