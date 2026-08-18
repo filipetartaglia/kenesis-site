@@ -184,7 +184,7 @@ MagneticButton.displayName = "MagneticButton";
 
 const MarqueeItem = () => (
   <div className="flex items-center space-x-12 px-6">
-    <span>Alto padrão em Niterói</span>
+    <span>Assessoria imobiliária completa</span>
     <span className="text-kenesis-lime/70">✦</span>
     <span>Atendimento próximo</span>
     <span className="text-kenesis-lime/70">✦</span>
@@ -192,7 +192,7 @@ const MarqueeItem = () => (
     <span className="text-kenesis-lime/70">✦</span>
     <span>Casas · Apartamentos · Terrenos</span>
     <span className="text-kenesis-lime/70">✦</span>
-    <span>Lançamentos exclusivos</span>
+    <span>Suporte cartorial e jurídico</span>
     <span className="text-kenesis-lime/70">✦</span>
   </div>
 );
@@ -363,7 +363,7 @@ export function CinematicFooter() {
 
             <div className="footer-glass-pill order-1 flex cursor-default items-center gap-2 rounded-full border-white/10 px-6 py-3 md:order-2">
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/55 md:text-xs">
-                Alto padrão em
+                Assessoria imobiliária em
               </span>
               <span className="font-display text-sm tracking-wide text-kenesis-lime md:text-base">Niterói</span>
             </div>

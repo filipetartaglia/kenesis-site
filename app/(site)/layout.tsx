@@ -22,7 +22,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <div className="relative z-10 min-h-screen overflow-hidden rounded-b-[2rem] bg-white shadow-[0_30px_80px_rgba(2,35,31,0.35)]">
         {children}
       </div>
-      <Footer />
+      <div className="relative z-0">
+        <Footer />
+      </div>
     </>
   );
 }

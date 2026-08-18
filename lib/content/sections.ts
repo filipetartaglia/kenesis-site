@@ -7,7 +7,7 @@ export const categorias: Categoria[] = [
 ];
 
 export const servicos: Servico[] = [
-  { title: "Imóveis", desc: "Opções de médio e alto padrão para morar, investir ou começar um novo projeto." },
-  { title: "Corretores", desc: "Atendimento próximo para entender seu momento, tirar dúvidas e organizar visitas." },
-  { title: "Equipe financeira", desc: "Apoio para avaliar financiamento e encontrar a melhor condição para sua compra." },
+  { title: "Assessoria Imobiliária", desc: "Atendimento personalizado para encontrar o imóvel certo para o seu momento — do médio ao alto padrão, com suporte em cada etapa da negociação." },
+  { title: "Suporte Cartorial", desc: "Auxiliamos em toda a documentação: escritura, registro de imóvel, processos cartoriais e jurídicos para uma compra ou venda tranquila e segura." },
+  { title: "Crédito e Financiamento", desc: "Orientação financeira para avaliar as melhores condições de financiamento e tornar a conquista do seu imóvel mais acessível." },
 ];

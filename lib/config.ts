@@ -38,5 +38,5 @@ export const siteConfig = {
   },
 
   /** Seções de navegação da home */
-  homeSections: ["Sobre", "Categorias", "Serviços", "Equipe", "Depoimentos", "FAQ", "Contato"],
+  homeSections: ["Sobre", "Categorias", "Serviços", "Parceiros", "Equipe", "Depoimentos", "FAQ", "Contato"],
 } as const;
