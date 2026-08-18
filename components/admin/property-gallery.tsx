@@ -39,7 +39,7 @@ async function getWatermark(): Promise<HTMLImageElement> {
       resolve(img);
     };
     img.onerror = reject;
-    img.src = "/logo-watermark.png";
+    img.src = "/logo-watermark.png?v=" + Date.now();
   });
 }
 

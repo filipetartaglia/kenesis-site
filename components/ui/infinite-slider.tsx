@@ -83,12 +83,12 @@ export function InfiniteSlider({
         }}
       >
         {/* First copy is measured */}
-        <div ref={ref} style={{ display: 'contents' }}>
+        <div ref={ref} style={{ display: 'flex', flexDirection: isHorizontal ? 'row' : 'column', gap: `${gap}px` }}>
           {children}
         </div>
         {/* Extra copies for seamless loop */}
         {Array.from({ length: copies }).map((_, i) => (
-          <div key={i} style={{ display: 'contents' }}>
+          <div key={i} style={{ display: 'flex', flexDirection: isHorizontal ? 'row' : 'column', gap: `${gap}px` }}>
             {children}
           </div>
         ))}
