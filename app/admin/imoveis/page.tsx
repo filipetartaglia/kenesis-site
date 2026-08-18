@@ -76,7 +76,7 @@ export default async function ImoveisPage({
       key: "image",
       label: "Foto",
       render: (row: any) => (
-        <div className="h-10 w-16 overflow-hidden rounded bg-gray-100">
+        <div className="h-9 w-14 flex-shrink-0 overflow-hidden rounded bg-gray-100">
           {row.coverImage && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={getImageUrl(row.coverImage)} alt={row.title} className="h-full w-full object-cover" />
@@ -84,28 +84,37 @@ export default async function ImoveisPage({
         </div>
       ),
     },
-    { key: "title", label: "Título" },
+    {
+      key: "title",
+      label: "Imóvel",
+      render: (row: any) => (
+        <div className="min-w-0">
+          <p className="max-w-[200px] truncate font-medium text-gray-900">{row.title}</p>
+          <p className="text-[11px] text-gray-400">
+            {[row.neighborhood, row.city].filter(Boolean).join(", ")}
+          </p>
+        </div>
+      ),
+    },
     {
       key: "propertyType",
       label: "Tipo",
-      render: (row: any) => formatType(row.propertyType),
-    },
-    {
-      key: "city",
-      label: "Cidade",
-      render: (row: any) =>
-        [row.neighborhood, row.city].filter(Boolean).join(", "),
+      render: (row: any) => (
+        <span className="whitespace-nowrap text-xs">{formatType(row.propertyType)}</span>
+      ),
     },
     {
       key: "price",
       label: "Preço",
-      render: (row: any) => formatPrice(row.priceCents, row.priceVisible),
+      render: (row: any) => (
+        <span className="whitespace-nowrap text-xs">{formatPrice(row.priceCents, row.priceVisible)}</span>
+      ),
     },
     {
       key: "status",
       label: "Status",
       render: (row: any) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <PropertyStatusToggle id={row.id} status={row.status} />
           <PropertyFeaturedToggle id={row.id} isFeatured={row.isFeatured} />
         </div>
@@ -113,20 +122,21 @@ export default async function ImoveisPage({
     },
     {
       key: "actions",
-      label: "Ações",
+      label: "",
       render: (row: any) => (
         <div className="flex items-center gap-3">
           <Link
             href={`/admin/imoveis/editar/${row.id}`}
             className="text-gray-400 hover:text-kenesis-green"
           >
-            <Edit size={16} />
+            <Edit size={15} />
           </Link>
           <DeletePropertyButton id={row.id} title={row.title} />
         </div>
       ),
     },
   ];
+
 
   return (
     <div className="space-y-6">

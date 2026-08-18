@@ -1,7 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { useMotionValue, animate, motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import useMeasure from 'react-use-measure';
 
 type InfiniteSliderProps = {
@@ -14,94 +13,86 @@ type InfiniteSliderProps = {
   className?: string;
 };
 
+/**
+ * Infinite slider using pure CSS animation — perfectly smooth, no Framer Motion
+ * loop quirks. We measure one set of children, then render enough copies to
+ * guarantee seamless looping regardless of viewport width.
+ */
 export function InfiniteSlider({
   children,
   gap = 16,
-  duration = 25,
+  duration = 30,
   durationOnHover,
   direction = 'horizontal',
   reverse = false,
   className,
 }: InfiniteSliderProps) {
-  const [currentDuration, setCurrentDuration] = useState(duration);
   const [ref, { width, height }] = useMeasure();
-  const translation = useMotionValue(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [key, setKey] = useState(0);
+  const [copies, setCopies] = useState(4);
+  const paused = useRef(false);
+  const trackRef = useRef<HTMLDivElement>(null);
 
+  // Ensure we have enough copies to fill twice the viewport + one set = seamless
   useEffect(() => {
-    let controls: ReturnType<typeof animate> | undefined;
     const size = direction === 'horizontal' ? width : height;
-    const contentSize = size + gap;
-    const from = reverse ? -contentSize / 2 : 0;
-    const to = reverse ? 0 : -contentSize / 2;
-
-    if (isTransitioning) {
-      controls = animate(translation, [translation.get(), to], {
-        ease: 'linear',
-        duration:
-          currentDuration * Math.abs((translation.get() - to) / contentSize),
-        onComplete: () => {
-          setIsTransitioning(false);
-          setKey((prevKey) => prevKey + 1);
-        },
-      });
-    } else {
-      controls = animate(translation, [from, to], {
-        ease: 'linear',
-        duration: currentDuration,
-        repeat: Infinity,
-        repeatType: 'loop',
-        repeatDelay: 0,
-        onRepeat: () => {
-          translation.set(from);
-        },
-      });
+    if (size > 0) {
+      const viewportSize =
+        direction === 'horizontal' ? window.innerWidth : window.innerHeight;
+      // need at least 2 full lengths to loop; add a safety margin
+      const needed = Math.max(4, Math.ceil((viewportSize * 2.5) / size) + 1);
+      setCopies(needed);
     }
+  }, [width, height, direction]);
 
-    return controls?.stop;
-  }, [
-    key,
-    translation,
-    currentDuration,
-    width,
-    height,
-    gap,
-    isTransitioning,
-    direction,
-    reverse,
-  ]);
+  const isHorizontal = direction === 'horizontal';
+  const size = isHorizontal ? width : height;
+  const animSize = size + gap; // one "lap" = one set + one gap
 
-  const hoverProps = durationOnHover
-    ? {
-        onHoverStart: () => {
-          setIsTransitioning(true);
-          setCurrentDuration(durationOnHover);
-        },
-        onHoverEnd: () => {
-          setIsTransitioning(true);
-          setCurrentDuration(duration);
-        },
-      }
-    : {};
+  const keyframes = reverse
+    ? `@keyframes kenesis-slider-rev { from { transform: translate${isHorizontal ? 'X' : 'Y'}(0); } to { transform: translate${isHorizontal ? 'X' : 'Y'}(${animSize}px); } }`
+    : `@keyframes kenesis-slider { from { transform: translate${isHorizontal ? 'X' : 'Y'}(0); } to { transform: translate${isHorizontal ? 'X' : 'Y'}(-${animSize}px); } }`;
+
+  const animName = reverse ? 'kenesis-slider-rev' : 'kenesis-slider';
+
+  const trackStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: isHorizontal ? 'row' : 'column',
+    gap: `${gap}px`,
+    width: 'max-content',
+    animation: size > 0 ? `${animName} ${duration}s linear infinite` : 'none',
+    animationPlayState: 'running',
+    // start from correct position for reverse
+    transform: reverse ? `translate${isHorizontal ? 'X' : 'Y'}(-${animSize}px)` : undefined,
+  };
 
   return (
     <div className={cn('overflow-hidden', className)}>
-      <motion.div
-        className='flex w-max'
-        style={{
-          ...(direction === 'horizontal'
-            ? { x: translation }
-            : { y: translation }),
-          gap: `${gap}px`,
-          flexDirection: direction === 'horizontal' ? 'row' : 'column',
+      <style>{keyframes}</style>
+      <div
+        ref={trackRef}
+        style={trackStyle}
+        onMouseEnter={() => {
+          if (durationOnHover && trackRef.current) {
+            trackRef.current.style.animationDuration = `${durationOnHover}s`;
+          }
         }}
-        ref={ref}
-        {...hoverProps}
+        onMouseLeave={() => {
+          if (durationOnHover && trackRef.current) {
+            trackRef.current.style.animationDuration = `${duration}s`;
+          }
+        }}
       >
-        {children}
-        {children}
-      </motion.div>
+        {/* First copy is measured */}
+        <div ref={ref} style={{ display: 'contents' }}>
+          {children}
+        </div>
+        {/* Extra copies for seamless loop */}
+        {Array.from({ length: copies }).map((_, i) => (
+          <div key={i} style={{ display: 'contents' }}>
+            {children}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -13,7 +13,7 @@ export function DataTable({ columns, data }: { columns: Column[]; data: any[] })
         <thead className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase text-gray-700">
           <tr>
             {columns.map((col) => (
-              <th key={col.key} className="px-6 py-4">
+              <th key={col.key} className="px-4 py-3">
                 {col.label}
               </th>
             ))}
@@ -22,7 +22,7 @@ export function DataTable({ columns, data }: { columns: Column[]; data: any[] })
         <tbody className="divide-y divide-gray-200">
           {data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-500">
+              <td colSpan={columns.length} className="px-4 py-8 text-center text-gray-500">
                 Nenhum registro encontrado.
               </td>
             </tr>
@@ -30,7 +30,7 @@ export function DataTable({ columns, data }: { columns: Column[]; data: any[] })
             data.map((row, i) => (
               <tr key={row.id || i} className="transition-colors hover:bg-gray-50">
                 {columns.map((col) => (
-                  <td key={col.key} className="whitespace-nowrap px-6 py-4">
+                  <td key={col.key} className="whitespace-nowrap px-4 py-3">
                     {col.render ? col.render(row) : row[col.key]}
                   </td>
                 ))}

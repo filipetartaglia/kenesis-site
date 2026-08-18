@@ -208,43 +208,37 @@ export function CinematicFooter() {
     if (!wrapperRef.current) return;
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        giantTextRef.current,
-        { y: "10vh", scale: 0.85, opacity: 0 },
-        {
-          y: "0vh",
-          scale: 1,
-          opacity: 1,
-          duration: 1.2,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: giantTextRef.current,
-            start: "top 95%",
-            toggleActions: "play none none reverse",
-          },
-        }
-      );
+      // Giant background text — animate in when scrolled to
+      gsap.from(giantTextRef.current, {
+        y: "10vh",
+        scale: 0.85,
+        opacity: 0,
+        duration: 1.2,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: giantTextRef.current,
+          start: "top 100%", // fires as soon as element enters viewport bottom
+          toggleActions: "play none none none", // never reverse — stays visible
+        },
+      });
 
-      gsap.fromTo(
-        [headingRef.current, linksRef.current],
-        { y: 50, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: headingRef.current,
-            start: "top 90%",
-            toggleActions: "play none none reverse",
-          },
-        }
-      );
+      gsap.from([headingRef.current, linksRef.current], {
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: headingRef.current,
+          start: "top 100%",
+          toggleActions: "play none none none",
+        },
+      });
     }, wrapperRef);
 
     return () => ctx.revert();
   }, []);
+
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
