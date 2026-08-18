@@ -73,12 +73,22 @@ export function InfiniteSlider({
         style={trackStyle}
         onMouseEnter={() => {
           if (durationOnHover && trackRef.current) {
-            trackRef.current.style.animationDuration = `${durationOnHover}s`;
+            const anims = trackRef.current.getAnimations();
+            if (anims.length > 0) {
+              anims[0].playbackRate = duration / durationOnHover;
+            } else {
+              trackRef.current.style.animationDuration = `${durationOnHover}s`;
+            }
           }
         }}
         onMouseLeave={() => {
           if (durationOnHover && trackRef.current) {
-            trackRef.current.style.animationDuration = `${duration}s`;
+            const anims = trackRef.current.getAnimations();
+            if (anims.length > 0) {
+              anims[0].playbackRate = 1;
+            } else {
+              trackRef.current.style.animationDuration = `${duration}s`;
+            }
           }
         }}
       >
