@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 110" fill="none">
+  <!-- Star/arrow logo icon -->
+  <!-- Upper right arrow (orange) pointing up-right -->
+  <path d="M36 8 L72 8 L72 44" stroke="#D05A1A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Lower left arrow (teal) pointing down-left -->
+  <path d="M4 62 L4 98 L40 98" stroke="#2E7B70" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Diagonal line connecting them (the star cross shape) -->
+  <line x1="72" y1="8" x2="4" y2="98" stroke="#D05A1A" stroke-width="7" stroke-linecap="round" opacity="0.4"/>
+  
+  <!-- CON in teal -->
+  <text x="88" y="74" font-family="'Arial Black', 'Arial', sans-serif" font-size="46" font-weight="900" fill="#2E7B70">CON</text>
+  <!-- VIVA in orange -->
+  <text x="192" y="74" font-family="'Arial Black', 'Arial', sans-serif" font-size="46" font-weight="900" fill="#D05A1A">VIVA</text>
+  <!-- engenharia subtext -->
+  <text x="88" y="98" font-family="'Arial', sans-serif" font-size="13" font-weight="400" fill="#2E7B70" letter-spacing="3.5">engenharia</text>
+</svg>

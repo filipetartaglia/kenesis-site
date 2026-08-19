@@ -19,37 +19,45 @@ export default function HeroSection() {
         .kd4 { animation-delay: 0.48s; }
       `}</style>
 
-      {/* ── Background: full-bleed photo, left side slightly darker ─────── */}
+      {/* ── Background: full-bleed photo ─────────────────────────────────── */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/imagens/site/Imagem-principal-site.jpeg')" }}
       />
-      {/* Thin dark veil — left stronger, right nearly transparent so photo breathes */}
+      {/* Green tint overlay — gives the signature Kenesis green feel over the photo */}
       <div
         className="absolute inset-0 z-0"
         style={{
           background:
-            "linear-gradient(to right, rgba(2,35,31,0.72) 0%, rgba(2,35,31,0.38) 55%, rgba(2,35,31,0.12) 100%)",
+            "linear-gradient(135deg, rgba(2,35,31,0.82) 0%, rgba(3,66,59,0.60) 45%, rgba(3,66,59,0.30) 100%)",
         }}
       />
-      {/* Subtle top/bottom fade to blend with the header & footer */}
+      {/* Subtle green color cast on the whole image */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background: "rgba(3, 66, 59, 0.22)",
+          mixBlendMode: "multiply",
+        }}
+      />
+      {/* Top/bottom fade to blend with header & next section */}
       <div
         className="absolute inset-0 z-0"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(2,35,31,0.55) 0%, transparent 20%, transparent 80%, rgba(2,35,31,0.65) 100%)",
+            "linear-gradient(to bottom, rgba(2,35,31,0.60) 0%, transparent 18%, transparent 75%, rgba(2,35,31,0.70) 100%)",
         }}
       />
 
       {/* ── Content — left-aligned, Boma-style ───────────────────────────── */}
-      <div className="relative z-10 flex w-full flex-col justify-center px-8 pb-24 pt-36 sm:px-12 lg:px-20 xl:px-28">
+      <div className="relative z-10 flex w-full flex-col justify-center px-6 pb-20 pt-28 sm:px-12 sm:pt-36 lg:px-20 xl:px-28">
         {/* Overline */}
         <p className="kfade kd1 mb-5 text-[11px] font-semibold uppercase tracking-[0.3em] text-kenesis-lime/80">
           Niterói &amp; Região
         </p>
 
         {/* Main headline — Fraunces display, large and left-aligned */}
-        <h1 className="kfade kd2 font-display max-w-2xl text-[clamp(2.8rem,6vw,5.5rem)] leading-[0.93] tracking-tight">
+        <h1 className="kfade kd2 font-display max-w-2xl text-[clamp(2.4rem,6vw,5.5rem)] leading-[0.95] tracking-tight">
           O imóvel certo
           <br />
           <span className="text-kenesis-lime">para o seu</span>
@@ -58,16 +66,16 @@ export default function HeroSection() {
         </h1>
 
         {/* Subtitle */}
-        <p className="kfade kd3 mt-7 max-w-md text-[15px] leading-relaxed text-white/60">
+        <p className="kfade kd3 mt-5 sm:mt-7 max-w-md text-[14px] sm:text-[15px] leading-relaxed text-white/60">
           Casas, apartamentos, terrenos e empreendimentos —
           com assessoria completa do primeiro contato até a entrega das chaves.
         </p>
 
         {/* CTAs */}
-        <div className="kfade kd4 mt-10 flex flex-wrap gap-4">
+        <div className="kfade kd4 mt-8 sm:mt-10 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
           <Link
             href="/imoveis"
-            className="group inline-flex items-center gap-2.5 rounded-full bg-kenesis-lime px-8 py-4 text-[13px] font-bold text-kenesis-greenDark transition-all hover:scale-[1.03] hover:bg-[#b8d01f] active:scale-[0.98]"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-kenesis-lime px-8 py-4 text-[13px] font-bold text-kenesis-greenDark transition-all hover:scale-[1.03] hover:bg-[#b8d01f] active:scale-[0.98] sm:w-auto"
           >
             Ver imóveis
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -76,7 +84,7 @@ export default function HeroSection() {
             href={siteConfig.links.whatsapp}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2.5 rounded-full border border-white/25 bg-white/8 px-8 py-4 text-[13px] font-bold text-white backdrop-blur-sm transition-all hover:border-white/40 hover:bg-white/12"
+            className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/25 bg-white/8 px-8 py-4 text-[13px] font-bold text-white backdrop-blur-sm transition-all hover:border-white/40 hover:bg-white/12 sm:w-auto"
           >
             <MessageCircle className="h-4 w-4" />
             Falar com especialista
@@ -84,7 +92,7 @@ export default function HeroSection() {
         </div>
 
         {/* Location tag — Boma-style bottom-left pill */}
-        <div className="mt-16 flex items-center gap-2.5">
+        <div className="mt-12 sm:mt-16 flex items-center gap-2.5">
           <span className="flex h-2.5 w-2.5 items-center justify-center">
             <span className="block h-2 w-2 rounded-full bg-white/50 ring-2 ring-white/20" />
           </span>

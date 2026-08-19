@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 130" fill="none">
+  <defs>
+    <clipPath id="artClip">
+      <rect x="180" y="0" width="40" height="85"/>
+    </clipPath>
+  </defs>
+  
+  <!-- Orange rectangle (the | between PRO and ART) -->
+  <rect x="182" y="5" width="32" height="80" fill="#F07D00" rx="1"/>
+  
+  <!-- P letter -->
+  <path d="M16 18 L16 87 L30 87 L30 64 L52 64 C64 64 74 55 74 42 C74 29 64 18 52 18 Z M30 32 L50 32 C57 32 61 36 61 42 C61 48 57 52 50 52 L30 52 Z" fill="#595959"/>
+  
+  <!-- R letter -->
+  <path d="M82 18 L82 87 L96 87 L96 64 L112 64 L128 87 L144 87 L126 62 C134 58 140 51 140 42 C140 29 130 18 118 18 Z M96 32 L116 32 C123 32 127 36 127 42 C127 48 123 52 116 52 L96 52 Z" fill="#595959"/>
+  
+  <!-- O letter -->
+  <path d="M150 52 C150 33 163 18 180 18 C197 18 210 33 210 52 C210 71 197 86 180 86 C163 86 150 71 150 52 Z M164 52 C164 63 171 72 180 72 C189 72 196 63 196 52 C196 41 189 32 180 32 C171 32 164 41 164 52 Z" fill="#595959"/>
+  
+  <!-- A letter (with orange bar through it) -->
+  <!-- Left side of A -->
+  <path d="M194 87 L210 18 L220 18 L236 87 L222 87 L219 72 L211 72 L208 87 Z M213 60 L217 60 L215 44 Z" fill="#595959"/>
+  <!-- Right part where orange overlaps - ensure A is visible around the bar -->
+  
+  <!-- R letter (second) -->
+  <path d="M242 18 L242 87 L256 87 L256 64 L272 64 L288 87 L304 87 L286 62 C294 58 300 51 300 42 C300 29 290 18 278 18 Z M256 32 L276 32 C283 32 287 36 287 42 C287 48 283 52 276 52 L256 52 Z" fill="#595959"/>
+  
+  <!-- T letter -->
+  <path d="M308 18 L370 18 L370 32 L346 32 L346 87 L332 87 L332 32 L308 32 Z" fill="#595959"/>
+  
+  <!-- engenharia text -->
+  <text x="16" y="118" font-family="'Arial', sans-serif" font-size="15" font-weight="400" fill="#595959" letter-spacing="2.5">engenharia</text>
+</svg>
