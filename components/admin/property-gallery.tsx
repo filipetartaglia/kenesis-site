@@ -1,11 +1,11 @@
 "use client";
 
-import { Upload, X, Star, CheckCircle2, Loader2 } from "lucide-react";
+import { Upload, X, Star, CheckCircle2, Loader2, GripVertical, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 type ImageItem = {
-  path: string;  // caminho no storage (salvo no banco)
-  url: string;   // URL completa para exibir
+  path: string;
+  url: string;
   isCover: boolean;
 };
 
@@ -33,29 +33,19 @@ async function getWatermark(): Promise<HTMLImageElement> {
   if (cachedWatermark) return cachedWatermark;
   return new Promise((resolve, reject) => {
     const img = new Image();
-    // crossOrigin must be set BEFORE src for CORS to work properly
     img.crossOrigin = "anonymous";
-    img.onload = () => {
-      cachedWatermark = img;
-      resolve(img);
-    };
+    img.onload = () => { cachedWatermark = img; resolve(img); };
     img.onerror = reject;
-    // Cache-bust to avoid stale CORS-opaque responses
     img.src = "/logo-watermark.png?nocache=" + Math.floor(Date.now() / 60000);
   });
 }
 
-/** Normaliza tipos MIME inconsistentes entre navegadores */
 function normalizeMime(type: string): string {
   if (type === "image/jpg") return "image/jpeg";
   if (!type || type === "application/octet-stream") return "image/jpeg";
   return type;
 }
 
-/**
- * Aplica a marca d'água da Kenesis à imagem via Canvas antes de enviar.
- * Usa a imagem da logo com opacidade reduzida.
- */
 async function applyWatermark(file: File): Promise<Blob> {
   const watermark = await getWatermark().catch(() => null);
   const mimeType = normalizeMime(file.type);
@@ -70,7 +60,6 @@ async function applyWatermark(file: File): Promise<Blob> {
       const ctx = canvas.getContext("2d");
       if (!ctx) { URL.revokeObjectURL(url); resolve(file); return; }
 
-      // Desenha a imagem original
       ctx.drawImage(img, 0, 0);
 
       if (watermark) {
@@ -83,16 +72,13 @@ async function applyWatermark(file: File): Promise<Blob> {
           ctx.drawImage(watermark, wmX, wmY, wmWidth, wmHeight);
           ctx.globalAlpha = 1;
         } catch {
-          // Canvas tainted — skip watermark but keep image
           ctx.globalAlpha = 1;
         }
       }
 
       URL.revokeObjectURL(url);
-
       canvas.toBlob(
         (blob) => { resolve(blob ?? file); },
-        // Always use a safe MIME type; PNG/AVIF -> jpeg for smaller payload
         mimeType === "image/webp" ? "image/webp" : "image/jpeg",
         0.92
       );
@@ -115,24 +101,19 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
   const [uploading, setUploading] = useState(false);
   const [uploadQueue, setUploadQueue] = useState<UploadingItem[]>([]);
 
+  // Drag-and-drop state
+  const dragIndex = useRef<number | null>(null);
+
   const handleUpload = useCallback(async (files: FileList) => {
     setUploading(true);
     const folder = slug || "temp";
-
-    // Inicializa a fila de progresso
-    const queue: UploadingItem[] = Array.from(files).map((f) => ({
-      name: f.name,
-      progress: "uploading",
-    }));
+    const queue: UploadingItem[] = Array.from(files).map((f) => ({ name: f.name, progress: "uploading" as const }));
     setUploadQueue(queue);
 
-    // Envia todas as imagens em paralelo
     await Promise.all(
       Array.from(files).map(async (file, i) => {
         try {
-          // Aplica marca d'água antes de enviar
           const watermarked = await applyWatermark(file);
-
           const form = new FormData();
           form.append("file", watermarked, file.name);
           form.append("folder", folder);
@@ -141,46 +122,27 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
           const data = await res.json();
 
           if (!res.ok) {
-            setUploadQueue((prev) => {
-              const next = [...prev];
-              next[i] = { ...next[i], progress: "error" };
-              return next;
-            });
+            setUploadQueue((prev) => { const next = [...prev]; next[i] = { ...next[i], progress: "error" }; return next; });
             return;
           }
 
           setImages((prev) => [
             ...prev,
-            {
-              path: data.path,
-              url: data.url,
-              isCover: prev.length === 0 && i === 0,
-            },
+            { path: data.path, url: data.url, isCover: prev.length === 0 && i === 0 },
           ]);
-          setUploadQueue((prev) => {
-            const next = [...prev];
-            next[i] = { ...next[i], progress: "done" };
-            return next;
-          });
+          setUploadQueue((prev) => { const next = [...prev]; next[i] = { ...next[i], progress: "done" }; return next; });
         } catch {
-          setUploadQueue((prev) => {
-            const next = [...prev];
-            next[i] = { ...next[i], progress: "error" };
-            return next;
-          });
+          setUploadQueue((prev) => { const next = [...prev]; next[i] = { ...next[i], progress: "error" }; return next; });
         }
       })
     );
 
     setUploading(false);
-    // Limpa a fila após 2s
     setTimeout(() => setUploadQueue([]), 2000);
   }, [slug]);
 
   const handleRemove = useCallback(async (index: number) => {
     const img = images[index];
-
-    // Se a imagem é do Supabase (não local), deleta do storage
     if (!isLocalPath(img.path)) {
       try {
         await fetch("/api/upload", {
@@ -188,28 +150,40 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ path: img.path }),
         });
-      } catch (e) {
-        console.error("Falha ao deletar do storage:", e);
-      }
+      } catch (e) { console.error("Falha ao deletar do storage:", e); }
     }
-
     setImages((prev) => {
       const next = prev.filter((_, i) => i !== index);
-      if (img.isCover && next.length > 0) {
-        next[0] = { ...next[0], isCover: true };
-      }
+      if (img.isCover && next.length > 0) next[0] = { ...next[0], isCover: true };
       return next;
     });
   }, [images]);
 
   const handleSetCover = useCallback((index: number) => {
-    setImages((prev) =>
-      prev.map((img, i) => ({ ...img, isCover: i === index }))
-    );
+    setImages((prev) => prev.map((img, i) => ({ ...img, isCover: i === index })));
   }, []);
 
-  const coverImage = images.find((img) => img.isCover);
+  // Move image left/right
+  const moveImage = useCallback((from: number, to: number) => {
+    setImages((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  }, []);
 
+  // Drag handlers
+  const handleDragStart = (index: number) => { dragIndex.current = index; };
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (dragIndex.current === null || dragIndex.current === index) return;
+    moveImage(dragIndex.current, index);
+    dragIndex.current = index;
+  };
+  const handleDragEnd = () => { dragIndex.current = null; };
+
+  const coverImage = images.find((img) => img.isCover);
   const doneCount = uploadQueue.filter((q) => q.progress === "done").length;
   const errorCount = uploadQueue.filter((q) => q.progress === "error").length;
 
@@ -224,7 +198,7 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
         <span className="text-xs text-gray-500">{images.length} imagens</span>
       </div>
 
-      {/* Barra de progresso do upload em lote */}
+      {/* Upload progress */}
       {uploadQueue.length > 0 && (
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
           <div className="mb-3 flex items-center justify-between text-xs text-gray-600">
@@ -236,26 +210,14 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
             <span className="text-gray-400">{doneCount}/{uploadQueue.length}</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-            <div
-              className="h-full rounded-full bg-kenesis-lime transition-all duration-300"
-              style={{ width: `${(doneCount / uploadQueue.length) * 100}%` }}
-            />
+            <div className="h-full rounded-full bg-kenesis-lime transition-all duration-300" style={{ width: `${(doneCount / uploadQueue.length) * 100}%` }} />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {uploadQueue.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-1.5 rounded-lg bg-white px-2 py-1 text-[11px] shadow-sm"
-              >
-                {item.progress === "uploading" && (
-                  <Loader2 size={12} className="animate-spin text-kenesis-green" />
-                )}
-                {item.progress === "done" && (
-                  <CheckCircle2 size={12} className="text-kenesis-lime" />
-                )}
-                {item.progress === "error" && (
-                  <X size={12} className="text-red-400" />
-                )}
+              <div key={i} className="flex items-center gap-1.5 rounded-lg bg-white px-2 py-1 text-[11px] shadow-sm">
+                {item.progress === "uploading" && <Loader2 size={12} className="animate-spin text-kenesis-green" />}
+                {item.progress === "done" && <CheckCircle2 size={12} className="text-kenesis-lime" />}
+                {item.progress === "error" && <X size={12} className="text-red-400" />}
                 <span className="max-w-[100px] truncate text-gray-600">{item.name}</span>
               </div>
             ))}
@@ -263,7 +225,7 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {/* Upload Button */}
         <button
           type="button"
@@ -277,10 +239,7 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
             <Upload className="h-6 w-6 text-gray-400 group-hover:text-kenesis-green" />
           )}
           <span className="mt-2 text-xs font-medium text-gray-500 group-hover:text-kenesis-green">
-            {uploading ? "Enviando..." : "Selecionar fotos"}
-          </span>
-          <span className="mt-0.5 text-[10px] text-gray-400">
-            Várias de uma vez
+            {uploading ? "Enviando..." : "Adicionar fotos"}
           </span>
         </button>
 
@@ -293,19 +252,57 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
           onChange={(e) => {
             if (e.target.files && e.target.files.length > 0) {
               handleUpload(e.target.files);
-              e.target.value = ""; // Limpa para permitir re-upload do mesmo arquivo
+              e.target.value = "";
             }
           }}
         />
 
-        {/* Existing Images */}
+        {/* Image cards — draggable to reorder */}
         {images.map((img, i) => (
-          <div key={img.path} className="group relative h-32 overflow-hidden rounded-xl bg-gray-100">
+          <div
+            key={img.path}
+            draggable
+            onDragStart={() => handleDragStart(i)}
+            onDragOver={(e) => handleDragOver(e, i)}
+            onDragEnd={handleDragEnd}
+            className="group relative h-32 overflow-hidden rounded-xl bg-gray-100 cursor-grab active:cursor-grabbing"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={img.url} alt="" className="h-full w-full object-cover" />
             <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100" />
 
-            {/* Botões de ação */}
+            {/* Drag handle */}
+            <div className="absolute left-2 top-2 opacity-0 transition-all group-hover:opacity-100">
+              <div className="rounded-full bg-white/20 p-1 text-white backdrop-blur-md">
+                <GripVertical size={12} />
+              </div>
+            </div>
+
+            {/* Order arrows */}
+            <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1 opacity-0 transition-all group-hover:opacity-100">
+              {i > 0 && (
+                <button
+                  type="button"
+                  onClick={() => moveImage(i, i - 1)}
+                  className="rounded-full bg-white/25 p-1 text-white backdrop-blur-md transition-all hover:bg-kenesis-green"
+                  title="Mover para esquerda"
+                >
+                  <ChevronLeft size={12} />
+                </button>
+              )}
+              {i < images.length - 1 && (
+                <button
+                  type="button"
+                  onClick={() => moveImage(i, i + 1)}
+                  className="rounded-full bg-white/25 p-1 text-white backdrop-blur-md transition-all hover:bg-kenesis-green"
+                  title="Mover para direita"
+                >
+                  <ChevronRight size={12} />
+                </button>
+              )}
+            </div>
+
+            {/* Action buttons */}
             <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-all group-hover:opacity-100">
               {!img.isCover && (
                 <button
@@ -327,18 +324,23 @@ export function PropertyGallery({ slug, initialImages, supabaseUrl }: Props) {
               </button>
             </div>
 
+            {/* Cover badge */}
             {img.isCover && (
               <span className="absolute bottom-2 left-2 rounded-md bg-kenesis-lime px-2 py-0.5 text-[10px] font-bold uppercase text-white shadow-sm">
                 Capa
               </span>
             )}
+
+            {/* Order badge */}
+            <span className="absolute left-2 bottom-2 rounded-md bg-black/40 px-1.5 py-0.5 text-[10px] font-bold text-white/80 group-hover:opacity-0 transition-opacity">
+              {i + 1}
+            </span>
           </div>
         ))}
       </div>
 
       <p className="text-xs text-gray-500">
-        Selecione todas as fotos de uma vez — elas serão enviadas em paralelo e receberão a
-        marca d&apos;água da Kenesis automaticamente. Use a ⭐ para definir a capa. Formatos: WEBP, JPG, PNG ou AVIF (máx. 10MB cada).
+        Arraste as fotos para reordenar, ou use as setas ◀▶. ⭐ define a capa. Formatos: WEBP, JPG, PNG ou AVIF (máx. 10MB).
       </p>
     </div>
   );

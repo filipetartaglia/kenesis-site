@@ -36,6 +36,25 @@ function LogoCard({ name, logo, width, height }: Parceiro) {
   );
 }
 
+function LogoCardMobile({ name, logo, width, height }: Parceiro) {
+  return (
+    <div
+      className="flex h-20 items-center justify-center rounded-2xl border border-neutral-200/80 bg-white px-4 shadow-sm"
+      title={name}
+      aria-label={name}
+    >
+      <Image
+        src={logo}
+        alt={`Logo ${name}`}
+        width={width}
+        height={height}
+        className="h-9 w-auto object-contain opacity-80 grayscale"
+        loading="lazy"
+      />
+    </div>
+  );
+}
+
 export function Parceiros() {
   return (
     <section id="parceiros" data-nav="Parceiros" className="overflow-hidden bg-kenesis-cream py-20 sm:py-24">
@@ -54,7 +73,17 @@ export function Parceiros() {
         </Reveal>
       </div>
 
-      <div className="mt-12 sm:mt-14">
+      {/* Mobile: grade 2 colunas mostrando todos os logos */}
+      <div className="mt-10 grid grid-cols-2 gap-3 px-6 sm:hidden">
+        {PARCEIROS.map((p) => (
+          <LogoCardMobile key={p.name} {...p} />
+        ))}
+        {/* Se número ímpar, ocupa 2 colunas na última */}
+        {PARCEIROS.length % 2 !== 0 && <div className="col-span-2 flex justify-center"><LogoCardMobile {...PARCEIROS[PARCEIROS.length - 1]} /></div>}
+      </div>
+
+      {/* Desktop: slider infinito */}
+      <div className="mt-12 hidden sm:block sm:mt-14">
         <InfiniteSlider
           gap={20}
           duration={35}

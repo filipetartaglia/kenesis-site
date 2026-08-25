@@ -3,14 +3,23 @@
 import * as React from "react";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
 
+let gsap: any = null;
+let ScrollTrigger: any = null;
+
+// Carrega GSAP apenas no browser para evitar erro de SSR
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
+  Promise.all([
+    import("gsap").then((m) => { gsap = m.gsap; }),
+    import("gsap/ScrollTrigger").then((m) => {
+      ScrollTrigger = m.ScrollTrigger;
+    }),
+  ]).then(() => {
+    if (gsap && ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+  }).catch(() => {});
 }
 
 const STYLES = `
@@ -205,38 +214,41 @@ export function CinematicFooter() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!wrapperRef.current) return;
+    if (!wrapperRef.current || !gsap || !ScrollTrigger) return;
 
-    const ctx = gsap.context(() => {
-      // Giant background text — animate in when scrolled to
-      gsap.from(giantTextRef.current, {
-        y: "10vh",
-        scale: 0.85,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: giantTextRef.current,
-          start: "top 100%", // fires as soon as element enters viewport bottom
-          toggleActions: "play none none none", // never reverse — stays visible
-        },
-      });
+    try {
+      const ctx = gsap.context(() => {
+        gsap.from(giantTextRef.current, {
+          y: "10vh",
+          scale: 0.85,
+          opacity: 0,
+          duration: 1.2,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: giantTextRef.current,
+            start: "top 100%",
+            toggleActions: "play none none none",
+          },
+        });
 
-      gsap.from([headingRef.current, linksRef.current], {
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: headingRef.current,
-          start: "top 100%",
-          toggleActions: "play none none none",
-        },
-      });
-    }, wrapperRef);
+        gsap.from([headingRef.current, linksRef.current], {
+          y: 40,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: headingRef.current,
+            start: "top 100%",
+            toggleActions: "play none none none",
+          },
+        });
+      }, wrapperRef);
 
-    return () => ctx.revert();
+      return () => ctx.revert();
+    } catch {
+      // GSAP não disponível ou erro de contexto — renderiza sem animação
+    }
   }, []);
 
 

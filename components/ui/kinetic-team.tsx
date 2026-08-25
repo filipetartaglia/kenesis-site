@@ -73,7 +73,7 @@ export function KineticTeam({ members }: { members: TeamMember[] }) {
                 <img
                   src={member.photo}
                   alt={member.name}
-                  className="h-full w-full object-contain object-bottom origin-bottom"
+                  className="h-full w-full object-contain object-bottom origin-bottom mix-blend-screen brightness-105"
                 />
               </motion.div>
             )}
