@@ -18,8 +18,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Arquivo excede 10MB." }, { status: 400 });
     }
 
-    const allowedTypes = ["image/webp", "image/jpeg", "image/png", "image/avif"];
-    if (!allowedTypes.includes(file.type)) {
+    const allowedTypes = ["image/webp", "image/jpeg", "image/jpg", "image/png", "image/avif"];
+    const normalizedType = file.type === "image/jpg" ? "image/jpeg" : (file.type || "image/jpeg");
+    if (!allowedTypes.includes(normalizedType)) {
       return NextResponse.json(
         { error: "Formato não suportado. Use WEBP, JPG, PNG ou AVIF." },
         { status: 400 }
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(storagePath, file, {
-        contentType: file.type,
+        contentType: normalizedType,
         upsert: false,
       });
 

@@ -6,7 +6,8 @@ import { and, asc, desc, eq, inArray, isNotNull, ne, sql } from "drizzle-orm";
 
 export const TODOS = "Todos";
 
-function formatCurrency(cents: number | null, visible: boolean): string {
+function formatCurrency(cents: number | null, visible: boolean, label?: string | null): string {
+  if (label) return label; // Texto livre tem prioridade
   if (!visible || cents === null) return "Consulte valores";
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -50,15 +51,18 @@ function mapRowToProperty(row: any): Property {
     tag: formatTag(p.propertyType, p.segment),
     title: p.title,
     location: locParts.join(", "),
-    price: formatCurrency(p.priceCents, p.priceVisible),
+    price: formatCurrency(p.priceCents, p.priceVisible, p.priceLabel),
+    priceLabel: p.priceLabel ?? null,
     note: p.purpose === "locacao" ? "Mensal" : undefined,
     beds: p.bedrooms ?? undefined,
     baths: p.bathrooms ?? undefined,
     garage: p.parkingSpaces ?? undefined,
     area: p.areaTotalM2 ? `${p.areaTotalM2} m²` : (p.areaBuiltM2 ? `${p.areaBuiltM2} m²` : undefined),
+    areas: (p.areasOptions && p.areasOptions.length > 0) ? p.areasOptions : null,
     desc: p.description ?? "",
     img: getImageUrl(coverImage),
     gallery: cleanImages.map(getImageUrl),
+    features: (p.features && p.features.length > 0) ? p.features : null,
   };
 }
 

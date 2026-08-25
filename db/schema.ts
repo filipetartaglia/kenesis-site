@@ -140,6 +140,9 @@ export const properties = pgTable(
     // correção 6: em `venda` é o preço; em `locacao`, o aluguel mensal.
     // Formatação sempre pela função que recebe `purpose` junto — nunca solta.
     priceCents: bigint("price_cents", { mode: "number" }),
+    // Texto livre opcional: "A partir de R$ 450.000", "Consulte valores", etc.
+    // Quando preenchido, substitui a formatação automática do priceCents.
+    priceLabel: text("price_label"),
     // O valor é sempre gravado; isto controla apenas a exibição.
     priceVisible: boolean("price_visible").notNull().default(false),
     condoFeeCents: bigint("condo_fee_cents", { mode: "number" }),
@@ -147,6 +150,8 @@ export const properties = pgTable(
 
     areaTotalM2: numeric("area_total_m2", { precision: 10, scale: 2 }),
     areaBuiltM2: numeric("area_built_m2", { precision: 10, scale: 2 }),
+    // Opções múltiplas de área útil para empreendimentos (ex: ["45 m²", "67 m²", "89 m²"])
+    areasOptions: text("areas_options").array(),
     bedrooms: smallint("bedrooms"),
     suites: smallint("suites"),
     bathrooms: smallint("bathrooms"),

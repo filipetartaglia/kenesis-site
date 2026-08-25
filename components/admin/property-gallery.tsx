@@ -33,14 +33,23 @@ async function getWatermark(): Promise<HTMLImageElement> {
   if (cachedWatermark) return cachedWatermark;
   return new Promise((resolve, reject) => {
     const img = new Image();
+    // crossOrigin must be set BEFORE src for CORS to work properly
     img.crossOrigin = "anonymous";
     img.onload = () => {
       cachedWatermark = img;
       resolve(img);
     };
     img.onerror = reject;
-    img.src = "/logo-watermark.png?v=" + Date.now();
+    // Cache-bust to avoid stale CORS-opaque responses
+    img.src = "/logo-watermark.png?nocache=" + Math.floor(Date.now() / 60000);
   });
+}
+
+/** Normaliza tipos MIME inconsistentes entre navegadores */
+function normalizeMime(type: string): string {
+  if (type === "image/jpg") return "image/jpeg";
+  if (!type || type === "application/octet-stream") return "image/jpeg";
+  return type;
 }
 
 /**
@@ -49,6 +58,7 @@ async function getWatermark(): Promise<HTMLImageElement> {
  */
 async function applyWatermark(file: File): Promise<Blob> {
   const watermark = await getWatermark().catch(() => null);
+  const mimeType = normalizeMime(file.type);
 
   return new Promise((resolve) => {
     const img = new Image();
@@ -58,32 +68,34 @@ async function applyWatermark(file: File): Promise<Blob> {
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
       const ctx = canvas.getContext("2d");
-      if (!ctx) { resolve(file); return; }
+      if (!ctx) { URL.revokeObjectURL(url); resolve(file); return; }
 
       // Desenha a imagem original
       ctx.drawImage(img, 0, 0);
 
       if (watermark) {
-        // Marca d'água: imagem no centro
-        ctx.globalAlpha = 0.45; // ~45% de opacidade
-
-        // Largura da marca: 30% da largura da imagem original, limitada a um tamanho max/min razoável
-        let wmWidth = canvas.width * 0.3;
-        const wmHeight = (watermark.naturalHeight / watermark.naturalWidth) * wmWidth;
-
-        // Centraliza
-        const wmX = (canvas.width - wmWidth) / 2;
-        const wmY = (canvas.height - wmHeight) / 2;
-
-        ctx.drawImage(watermark, wmX, wmY, wmWidth, wmHeight);
-        ctx.globalAlpha = 1;
+        try {
+          ctx.globalAlpha = 0.45;
+          const wmWidth = canvas.width * 0.3;
+          const wmHeight = (watermark.naturalHeight / watermark.naturalWidth) * wmWidth;
+          const wmX = (canvas.width - wmWidth) / 2;
+          const wmY = (canvas.height - wmHeight) / 2;
+          ctx.drawImage(watermark, wmX, wmY, wmWidth, wmHeight);
+          ctx.globalAlpha = 1;
+        } catch {
+          // Canvas tainted — skip watermark but keep image
+          ctx.globalAlpha = 1;
+        }
       }
 
       URL.revokeObjectURL(url);
 
-      canvas.toBlob((blob) => {
-        resolve(blob ?? file);
-      }, file.type || "image/jpeg", 0.92);
+      canvas.toBlob(
+        (blob) => { resolve(blob ?? file); },
+        // Always use a safe MIME type; PNG/AVIF -> jpeg for smaller payload
+        mimeType === "image/webp" ? "image/webp" : "image/jpeg",
+        0.92
+      );
     };
     img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.src = url;

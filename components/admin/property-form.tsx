@@ -4,6 +4,8 @@ import { useFormState, useFormStatus } from "react-dom";
 import { AdminCard } from "./admin-card";
 import { PropertyGallery } from "./property-gallery";
 import { FeaturesInput } from "./features-input";
+import { RichTextEditor } from "./rich-text-editor";
+import { AreasInput } from "./areas-input";
 import { createProperty, updateProperty } from "@/server/properties/actions";
 import type { AdminPropertyFull, PropertyFormState } from "@/server/properties/actions";
 import { useRouter } from "next/navigation";
@@ -110,14 +112,14 @@ export function PropertyForm({ initialData, supabaseUrl }: Props) {
                 <label htmlFor="description" className="mb-1 block text-sm font-medium text-gray-700">
                   Descrição
                 </label>
-                <textarea
-                  id="description"
+                <RichTextEditor
                   name="description"
-                  rows={5}
-                  className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
-                  placeholder="Descreva os detalhes do imóvel..."
                   defaultValue={initialData?.description || ""}
+                  placeholder="Descreva os detalhes do imóvel..."
                 />
+                <p className="mt-1 text-xs text-gray-500">
+                  Use a barra de ferramentas para formatar o texto. O conteúdo formatado será exibido no site.
+                </p>
               </div>
             </div>
           </AdminCard>
@@ -375,6 +377,22 @@ export function PropertyForm({ initialData, supabaseUrl }: Props) {
                   defaultValue={formatCentsToDisplay(initialData?.priceCents ?? null)}
                 />
               </div>
+              <div>
+                <label htmlFor="priceLabel" className="mb-1 block text-sm font-medium text-gray-700">
+                  Texto do Preço (opcional)
+                </label>
+                <input
+                  id="priceLabel"
+                  name="priceLabel"
+                  type="text"
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
+                  placeholder="Ex: A partir de R$ 450.000"
+                  defaultValue={initialData?.priceLabel || ""}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Se preenchido, substitui o preço formatado acima no site. Ideal para empreendimentos.
+                </p>
+              </div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                 <input
                   type="checkbox"
@@ -493,6 +511,12 @@ export function PropertyForm({ initialData, supabaseUrl }: Props) {
                   className="w-full rounded-md border border-gray-300 p-2 text-sm outline-none focus:border-kenesis-green focus:ring-1 focus:ring-kenesis-green"
                   defaultValue={initialData?.parkingSpaces ?? ""}
                 />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Múltiplas Áreas Úteis (m²)
+                </label>
+                <AreasInput initialAreas={initialData?.areasOptions} />
               </div>
               <div>
                 <label htmlFor="areaBuiltM2" className="mb-1 block text-sm font-medium text-gray-700">

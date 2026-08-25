@@ -22,11 +22,13 @@ type PropertyFormData = {
   purpose: "venda" | "locacao";
   status: "rascunho" | "publicado" | "reservado" | "vendido" | "arquivado";
   priceCents?: number | null;
+  priceLabel?: string | null;
   priceVisible: boolean;
   condoFeeCents?: number | null;
   iptuCents?: number | null;
   areaTotalM2?: string | null;
   areaBuiltM2?: string | null;
+  areasOptions?: string[] | null;
   bedrooms?: number | null;
   suites?: number | null;
   bathrooms?: number | null;
@@ -80,11 +82,18 @@ function extractFormData(formData: FormData): PropertyFormData {
     purpose: (formData.get("purpose") as PropertyFormData["purpose"]) || "venda",
     status: (formData.get("status") as PropertyFormData["status"]) || "rascunho",
     priceCents: parseCurrency(formData.get("priceCents") as string),
+    priceLabel: (formData.get("priceLabel") as string) || null,
     priceVisible: formData.get("priceVisible") === "on",
     condoFeeCents: parseCurrency(formData.get("condoFeeCents") as string),
     iptuCents: parseCurrency(formData.get("iptuCents") as string),
     areaTotalM2: parseDecimalOrNull(formData.get("areaTotalM2") as string),
     areaBuiltM2: parseDecimalOrNull(formData.get("areaBuiltM2") as string),
+    areasOptions: (() => {
+      try {
+        const raw = JSON.parse((formData.get("areasOptions") as string) || "[]");
+        return Array.isArray(raw) && raw.length > 0 ? raw : null;
+      } catch { return null; }
+    })(),
     bedrooms: parseIntOrNull(formData.get("bedrooms") as string),
     suites: parseIntOrNull(formData.get("suites") as string),
     bathrooms: parseIntOrNull(formData.get("bathrooms") as string),
@@ -396,11 +405,13 @@ export type AdminPropertyFull = {
   purpose: string;
   status: string;
   priceCents: number | null;
+  priceLabel: string | null;
   priceVisible: boolean;
   condoFeeCents: number | null;
   iptuCents: number | null;
   areaTotalM2: string | null;
   areaBuiltM2: string | null;
+  areasOptions: string[] | null;
   bedrooms: number | null;
   suites: number | null;
   bathrooms: number | null;
@@ -450,11 +461,13 @@ export async function findOneForAdmin(id: string): Promise<AdminPropertyFull | n
     purpose: row.purpose,
     status: row.status,
     priceCents: row.priceCents,
+    priceLabel: row.priceLabel ?? null,
     priceVisible: row.priceVisible,
     condoFeeCents: row.condoFeeCents,
     iptuCents: row.iptuCents,
     areaTotalM2: row.areaTotalM2,
     areaBuiltM2: row.areaBuiltM2,
+    areasOptions: row.areasOptions ?? null,
     bedrooms: row.bedrooms,
     suites: row.suites,
     bathrooms: row.bathrooms,

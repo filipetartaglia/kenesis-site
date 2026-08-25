@@ -7,14 +7,17 @@ export interface Property {
   title: string;
   location: string;
   price: string;
+  priceLabel?: string | null;  // Texto livre de preço ex: "A partir de R$ 450.000"
   note?: string;
   beds?: number;
   baths?: number;
   garage?: number;
   area?: string;
+  areas?: string[] | null;    // Múltiplas opções de área útil (empreendimentos)
   desc: string;
   img: string;
   gallery: string[];
+  features?: string[] | null; // Comodidades e diferenciais
 }
 
 export interface TeamMember {

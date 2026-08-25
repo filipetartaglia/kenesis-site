@@ -15,6 +15,13 @@
       "when": 1786389626674,
       "tag": "0001_mysterious_anita_blake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787674455797,
+      "tag": "0002_premium_thundra",
+      "breakpoints": true
     }
   ]
 }
